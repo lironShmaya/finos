@@ -556,7 +556,7 @@ export default function Investments() {
                   </TableBody>
                 </Table>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       </motion.div>
