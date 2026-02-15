@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, BarChart3, Pencil, Trash2, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
+import { Plus, BarChart3, Pencil, Trash2, TrendingUp, TrendingDown, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -22,6 +22,8 @@ export default function Investments() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [updatingPrices, setUpdatingPrices] = useState(false);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState('desc');
   const queryClient = useQueryClient();
 
   const { data: holdings = [] } = useQuery({
@@ -69,6 +71,34 @@ export default function Investments() {
   const totalCost = holdings.reduce((s, h) => s + (h.quantity * h.avg_cost || 0), 0);
   const totalPL = totalValue - totalCost;
   const totalPLPct = totalCost > 0 ? ((totalPL / totalCost) * 100).toFixed(2) : 0;
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('desc');
+    }
+  };
+
+  const sortedHoldings = [...holdings].sort((a, b) => {
+    if (!sortColumn) return 0;
+    
+    let aVal, bVal;
+    
+    if (sortColumn === 'pl') {
+      aVal = (a.current_price - a.avg_cost) * a.quantity;
+      bVal = (b.current_price - b.avg_cost) * b.quantity;
+    } else if (sortColumn === 'value') {
+      aVal = a.market_value || a.quantity * a.current_price;
+      bVal = b.market_value || b.quantity * b.current_price;
+    } else if (sortColumn === 'avg_cost') {
+      aVal = a.avg_cost;
+      bVal = b.avg_cost;
+    }
+    
+    return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+  });
 
   const allocationData = {};
   holdings.forEach(h => {
@@ -217,15 +247,45 @@ export default function Investments() {
                       <TableHead className="text-xs uppercase tracking-wider text-gray-400">Symbol</TableHead>
                       <TableHead className="text-xs uppercase tracking-wider text-gray-400">Class</TableHead>
                       <TableHead className="text-xs uppercase tracking-wider text-gray-400 text-right">Qty</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wider text-gray-400 text-right">Avg Cost</TableHead>
+                      <TableHead 
+                        className="text-xs uppercase tracking-wider text-gray-400 text-right cursor-pointer hover:text-gray-600 transition-colors"
+                        onClick={() => handleSort('avg_cost')}
+                      >
+                        <div className="flex items-center justify-end gap-1">
+                          Avg Cost
+                          {sortColumn === 'avg_cost' ? (
+                            sortDirection === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                          ) : <ArrowUpDown className="h-3 w-3 opacity-30" />}
+                        </div>
+                      </TableHead>
                       <TableHead className="text-xs uppercase tracking-wider text-gray-400 text-right">Price</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wider text-gray-400 text-right">Value</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wider text-gray-400 text-right">P&L</TableHead>
+                      <TableHead 
+                        className="text-xs uppercase tracking-wider text-gray-400 text-right cursor-pointer hover:text-gray-600 transition-colors"
+                        onClick={() => handleSort('value')}
+                      >
+                        <div className="flex items-center justify-end gap-1">
+                          Value
+                          {sortColumn === 'value' ? (
+                            sortDirection === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                          ) : <ArrowUpDown className="h-3 w-3 opacity-30" />}
+                        </div>
+                      </TableHead>
+                      <TableHead 
+                        className="text-xs uppercase tracking-wider text-gray-400 text-right cursor-pointer hover:text-gray-600 transition-colors"
+                        onClick={() => handleSort('pl')}
+                      >
+                        <div className="flex items-center justify-end gap-1">
+                          P&L
+                          {sortColumn === 'pl' ? (
+                            sortDirection === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                          ) : <ArrowUpDown className="h-3 w-3 opacity-30" />}
+                        </div>
+                      </TableHead>
                       <TableHead className="w-20"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {holdings.map(h => {
+                    {sortedHoldings.map(h => {
                       const mv = h.market_value || h.quantity * h.current_price;
                       const pl = (h.current_price - h.avg_cost) * h.quantity;
                       const plPct = h.avg_cost > 0 ? ((h.current_price - h.avg_cost) / h.avg_cost * 100).toFixed(2) : 0;
