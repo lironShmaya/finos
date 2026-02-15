@@ -268,7 +268,7 @@ export default function Investments() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard 
           title="Total Portfolio Value" 
           value={formatCurrency(totalValue, displayCurrency)} 
@@ -282,26 +282,52 @@ export default function Investments() {
         <StatCard 
           title="Unrealized P/L" 
           value={formatCurrency(totalPL, displayCurrency)} 
-          subtitle={`${totalPLPct.toFixed(2)}%`}
+          subtitle={
+            <span className={
+              totalPLPct > 0 ? 'text-green-600' : 
+              totalPLPct < 0 ? 'text-red-600' : 
+              'text-gray-600'
+            }>
+              {totalPLPct.toFixed(2)}%
+            </span>
+          }
           icon={totalPL >= 0 ? TrendingUp : TrendingDown} 
-          trend={totalPL >= 0 ? 'positive' : 'negative'}
-          trendUp={totalPL >= 0} 
         />
         <StatCard 
           title="Best Performer" 
           value={bestPerformer?.symbol || 'N/A'} 
-          subtitle={bestPerformer ? `${bestPerformer.plPct.toFixed(2)}%` : ''}
+          subtitle={
+            bestPerformer ? (
+              <span className={
+                bestPerformer.plPct > 0 ? 'text-green-600' : 
+                bestPerformer.plPct < 0 ? 'text-red-600' : 
+                'text-gray-600'
+              }>
+                {bestPerformer.plPct.toFixed(2)}%
+              </span>
+            ) : ''
+          }
           icon={TrendingUp} 
         />
         <StatCard 
           title="Worst Performer" 
           value={worstPerformer?.symbol || 'N/A'} 
-          subtitle={worstPerformer ? `${worstPerformer.plPct.toFixed(2)}%` : ''}
+          subtitle={
+            worstPerformer ? (
+              <span className={
+                worstPerformer.plPct > 0 ? 'text-green-600' : 
+                worstPerformer.plPct < 0 ? 'text-red-600' : 
+                'text-gray-600'
+              }>
+                {worstPerformer.plPct.toFixed(2)}%
+              </span>
+            ) : ''
+          }
           icon={TrendingDown} 
         />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard 
           title="Cash" 
           value={formatCurrency(totalCash, displayCurrency)} 
@@ -315,11 +341,6 @@ export default function Investments() {
         <StatCard 
           title="USD/ILS" 
           value={EXCHANGE_RATES.USD.ILS.toFixed(3)} 
-          icon={BarChart3} 
-        />
-        <StatCard 
-          title="ILS" 
-          value={formatCurrency(totalValue * EXCHANGE_RATES[displayCurrency].ILS, 'ILS')} 
           icon={BarChart3} 
         />
       </div>
