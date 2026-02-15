@@ -4,23 +4,20 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PageHeader from '../components/shared/PageHeader';
 import StatCard from '../components/shared/StatCard';
 import EmptyState from '../components/shared/EmptyState';
+import OrderForm from '../components/investments/OrderForm';
 import { formatCurrency } from '../components/shared/CurrencyFormatter';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, BarChart3, Pencil, Trash2, TrendingUp, TrendingDown, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, BarChart3, Trash2, TrendingUp, TrendingDown, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const COLORS = ['#111827', '#2563EB', '#7C3AED', '#059669', '#D97706', '#DC2626', '#0891B2', '#8B5CF6'];
 
 export default function Investments() {
-  const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState(null);
+  const [showOrderForm, setShowOrderForm] = useState(false);
   const [updatingPrices, setUpdatingPrices] = useState(false);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('desc');
@@ -31,12 +28,23 @@ export default function Investments() {
     queryFn: () => base44.entities.Holding.list(),
   });
 
+  const { data: orders = [] } = useQuery({
+    queryKey: ['orders'],
+    queryFn: () => base44.entities.Order.list('-date'),
+  });
+
   // Real-time auto-updates
   useEffect(() => {
-    const unsubscribe = base44.entities.Holding.subscribe(() => {
+    const unsubscribeHolding = base44.entities.Holding.subscribe(() => {
       queryClient.invalidateQueries({ queryKey: ['holdings'] });
     });
-    return unsubscribe;
+    const unsubscribeOrder = base44.entities.Order.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    });
+    return () => {
+      unsubscribeHolding();
+      unsubscribeOrder();
+    };
   }, [queryClient]);
 
   const handleUpdateAllPrices = async () => {
@@ -52,17 +60,15 @@ export default function Investments() {
     }
   };
 
-  const createMut = useMutation({
-    mutationFn: (d) => base44.entities.Holding.create(d),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['holdings'] }); setShowForm(false); },
+  const createOrderMut = useMutation({
+    mutationFn: (d) => base44.entities.Order.create(d),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      setShowOrderForm(false);
+    },
   });
 
-  const updateMut = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Holding.update(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['holdings'] }); setEditing(null); setShowForm(false); },
-  });
-
-  const deleteMut = useMutation({
+  const deleteHoldingMut = useMutation({
     mutationFn: (id) => base44.entities.Holding.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['holdings'] }),
   });
@@ -107,28 +113,73 @@ export default function Investments() {
   });
   const pieData = Object.entries(allocationData).map(([name, value]) => ({ name, value }));
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const qty = parseFloat(fd.get('quantity'));
-    const avgCost = parseFloat(fd.get('avg_cost'));
-    const price = parseFloat(fd.get('current_price'));
-    const data = {
-      symbol: fd.get('symbol'),
-      name: fd.get('name'),
-      asset_class: fd.get('asset_class'),
-      quantity: qty,
-      avg_cost: avgCost,
-      current_price: price,
-      currency: fd.get('currency') || 'USD',
-      market_value: qty * price,
-      unrealized_pl: (price - avgCost) * qty,
-      unrealized_pl_pct: avgCost > 0 ? (((price - avgCost) / avgCost) * 100) : 0,
-    };
-    if (editing) {
-      updateMut.mutate({ id: editing.id, data });
-    } else {
-      createMut.mutate(data);
+  const handleOrderSubmit = async (orderData) => {
+    try {
+      // Create the order
+      await createOrderMut.mutateAsync(orderData);
+
+      // Find existing holding
+      const existingHolding = holdings.find(h => h.symbol === orderData.symbol);
+
+      if (orderData.order_type === 'buy') {
+        if (existingHolding) {
+          // Update existing holding - calculate weighted average cost
+          const totalCost = (existingHolding.quantity * existingHolding.avg_cost) + (orderData.quantity * orderData.price);
+          const totalQty = existingHolding.quantity + orderData.quantity;
+          const newAvgCost = totalCost / totalQty;
+
+          await base44.entities.Holding.update(existingHolding.id, {
+            quantity: totalQty,
+            avg_cost: newAvgCost,
+            current_price: orderData.price,
+            market_value: totalQty * orderData.price,
+            unrealized_pl: (orderData.price - newAvgCost) * totalQty,
+            unrealized_pl_pct: newAvgCost > 0 ? (((orderData.price - newAvgCost) / newAvgCost) * 100) : 0,
+          });
+        } else {
+          // Create new holding
+          await base44.entities.Holding.create({
+            symbol: orderData.symbol,
+            name: orderData.company_name || orderData.symbol,
+            asset_class: orderData.asset_class,
+            quantity: orderData.quantity,
+            avg_cost: orderData.price,
+            current_price: orderData.price,
+            currency: orderData.currency,
+            market_value: orderData.quantity * orderData.price,
+            unrealized_pl: 0,
+            unrealized_pl_pct: 0,
+          });
+        }
+        toast.success(`Bought ${orderData.quantity} shares of ${orderData.symbol}`);
+      } else if (orderData.order_type === 'sell') {
+        if (!existingHolding) {
+          toast.error(`Cannot sell ${orderData.symbol} - not in portfolio`);
+          return;
+        }
+
+        const newQty = existingHolding.quantity - orderData.quantity;
+
+        if (newQty <= 0) {
+          // Delete holding if quantity reaches 0 or below
+          await base44.entities.Holding.delete(existingHolding.id);
+          toast.success(`Sold all shares of ${orderData.symbol}`);
+        } else {
+          // Update holding with reduced quantity
+          await base44.entities.Holding.update(existingHolding.id, {
+            quantity: newQty,
+            current_price: orderData.price,
+            market_value: newQty * orderData.price,
+            unrealized_pl: (orderData.price - existingHolding.avg_cost) * newQty,
+            unrealized_pl_pct: existingHolding.avg_cost > 0 ? (((orderData.price - existingHolding.avg_cost) / existingHolding.avg_cost) * 100) : 0,
+          });
+          toast.success(`Sold ${orderData.quantity} shares of ${orderData.symbol}`);
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['holdings'] });
+    } catch (error) {
+      toast.error('Failed to process order: ' + error.message);
     }
   };
 
@@ -146,64 +197,19 @@ export default function Investments() {
             <RefreshCw className={`h-4 w-4 ${updatingPrices ? 'animate-spin' : ''}`} />
             Update Prices
           </Button>
-          <Dialog open={showForm} onOpenChange={setShowForm}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-2" onClick={() => setEditing(null)}>
-                <Plus className="h-4 w-4" /> Add Holding
-              </Button>
-            </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editing ? 'Edit Holding' : 'New Holding'}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div><Label>Symbol</Label><Input name="symbol" defaultValue={editing?.symbol || ''} required placeholder="AAPL" /></div>
-                <div><Label>Name</Label><Input name="name" defaultValue={editing?.name || ''} placeholder="Apple Inc." /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Asset Class</Label>
-                  <Select name="asset_class" defaultValue={editing?.asset_class || 'stocks'}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="stocks">Stocks</SelectItem>
-                      <SelectItem value="bonds">Bonds</SelectItem>
-                      <SelectItem value="etf">ETF</SelectItem>
-                      <SelectItem value="mutual_fund">Mutual Fund</SelectItem>
-                      <SelectItem value="crypto">Crypto</SelectItem>
-                      <SelectItem value="commodities">Commodities</SelectItem>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Currency</Label>
-                  <Select name="currency" defaultValue={editing?.currency || 'USD'}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="USD">USD</SelectItem>
-                      <SelectItem value="ILS">ILS</SelectItem>
-                      <SelectItem value="EUR">EUR</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div><Label>Quantity</Label><Input name="quantity" type="number" step="0.0001" defaultValue={editing?.quantity || ''} required /></div>
-                <div><Label>Avg Cost</Label><Input name="avg_cost" type="number" step="0.01" defaultValue={editing?.avg_cost || ''} required /></div>
-                <div><Label>Current Price</Label><Input name="current_price" type="number" step="0.01" defaultValue={editing?.current_price || ''} required /></div>
-              </div>
-              <div className="flex justify-end gap-3">
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
-                <Button type="submit">{editing ? 'Update' : 'Create'}</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+          <Button size="sm" className="gap-2" onClick={() => setShowOrderForm(!showOrderForm)}>
+            <Plus className="h-4 w-4" /> Add Order
+          </Button>
         </div>
       </PageHeader>
+
+      <AnimatePresence>
+        {showOrderForm && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <OrderForm onSubmit={handleOrderSubmit} onCancel={() => setShowOrderForm(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard title="Total Value" value={formatCurrency(totalValue)} icon={BarChart3} />
@@ -305,14 +311,9 @@ export default function Investments() {
                             <span className="block text-xs">{plPct}%</span>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(h); setShowForm(true); }}>
-                                <Pencil className="h-3.5 w-3.5 text-gray-400" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteMut.mutate(h.id)}>
-                                <Trash2 className="h-3.5 w-3.5 text-gray-400" />
-                              </Button>
-                            </div>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteHoldingMut.mutate(h.id)}>
+                              <Trash2 className="h-3.5 w-3.5 text-gray-400" />
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );
