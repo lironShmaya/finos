@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import PageHeader from '../components/shared/PageHeader';
 import StatCard from '../components/shared/StatCard';
 import { formatCurrency } from '../components/shared/CurrencyFormatter';
@@ -141,26 +142,61 @@ export default function AnnualDashboard() {
     <div className="space-y-6">
       <PageHeader title={`Annual Dashboard ${selectedYear}`} subtitle="Yearly financial overview">
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => setSelectedYear(selectedYear - 1)}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm font-semibold px-3">{selectedYear}</span>
-          <Button size="sm" variant="outline" onClick={() => setSelectedYear(selectedYear + 1)} disabled={selectedYear >= new Date().getFullYear()}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button size="sm" variant="outline" onClick={() => setSelectedYear(selectedYear - 1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </motion.div>
+          <motion.span 
+            key={selectedYear}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="text-sm font-semibold px-3"
+          >
+            {selectedYear}
+          </motion.span>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button size="sm" variant="outline" onClick={() => setSelectedYear(selectedYear + 1)} disabled={selectedYear >= new Date().getFullYear()}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </motion.div>
         </div>
       </PageHeader>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard title="Annual Total Income" value={formatCurrency(totalIncome, 'USD')} icon={TrendingUp} />
-        <StatCard title="Annual Total Expenses" value={formatCurrency(totalExpenses, 'USD')} icon={TrendingDown} />
-        <StatCard title="Annual Total Bills" value={formatCurrency(yearBills, 'USD')} icon={Receipt} />
-        <StatCard title="Total Debt Paid" value={formatCurrency(debtPaid, 'USD')} icon={DollarSign} />
-        <StatCard title="Annual Savings" value={formatCurrency(totalSavings, 'USD')} icon={Target} />
-      </div>
+      <motion.div 
+        key={selectedYear}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+      >
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
+          <StatCard title="Annual Total Income" value={formatCurrency(totalIncome, 'USD')} icon={TrendingUp} />
+        </motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+          <StatCard title="Annual Total Expenses" value={formatCurrency(totalExpenses, 'USD')} icon={TrendingDown} />
+        </motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+          <StatCard title="Annual Total Bills" value={formatCurrency(yearBills, 'USD')} icon={Receipt} />
+        </motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
+          <StatCard title="Total Debt Paid" value={formatCurrency(debtPaid, 'USD')} icon={DollarSign} />
+        </motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
+          <StatCard title="Annual Savings" value={formatCurrency(totalSavings, 'USD')} icon={Target} />
+        </motion.div>
+      </motion.div>
 
       {/* Income Summary */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <motion.div 
+        key={`income-${selectedYear}`}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        whileHover={{ scale: 1.01 }}
+        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+      >
         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">INCOME SUMMARY</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
@@ -222,10 +258,17 @@ export default function AnnualDashboard() {
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </motion.div>
 
       {/* Expense Summary */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <motion.div 
+        key={`expense-${selectedYear}`}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        whileHover={{ scale: 1.01 }}
+        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+      >
         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">EXPENSE SUMMARY</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
@@ -272,10 +315,17 @@ export default function AnnualDashboard() {
             </ResponsiveContainer>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Investment Summary */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <motion.div 
+        key={`investment-${selectedYear}`}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
+        whileHover={{ scale: 1.01 }}
+        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+      >
         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">INVESTMENT SUMMARY</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
@@ -331,7 +381,7 @@ export default function AnnualDashboard() {
             </ResponsiveContainer>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

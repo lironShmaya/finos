@@ -374,7 +374,13 @@ export default function Investments() {
         />
       </motion.div>
 
-      <div className="flex gap-3 max-w-3xl">
+      <motion.div 
+        key={`cash-${timeRange}`}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="flex gap-3 max-w-3xl"
+      >
         <StatCard 
           title="Cash" 
           value={formatCurrency(totalCash, displayCurrency)} 
@@ -393,11 +399,24 @@ export default function Investments() {
           icon={BarChart3} 
           className="flex-1"
         />
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <motion.div 
+        key={`holdings-${timeRange}`}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+        className="grid grid-cols-1 lg:grid-cols-4 gap-6"
+      >
         {pieData.length > 0 && (
-          <div className="rounded-2xl border border-gray-100 bg-white p-6">
+          <motion.div 
+            className="rounded-2xl border border-gray-100 bg-white p-6"
+            whileHover={{ 
+              scale: 1.03,
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+            }}
+            transition={{ duration: 0.3 }}
+          >
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Allocation</h3>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
@@ -409,21 +428,43 @@ export default function Investments() {
             </ResponsiveContainer>
             <div className="mt-3 space-y-1">
               {pieData.map((d, i) => (
-                <div key={d.name} className="flex items-center gap-2 text-xs">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                <motion.div 
+                  key={d.name}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  whileHover={{ x: 5, transition: { duration: 0.2 } }}
+                  className="flex items-center gap-2 text-xs"
+                >
+                  <motion.div 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 2,
+                      delay: i * 0.2
+                    }}
+                  />
                   <span className="text-gray-600">{d.name}</span>
                   <span className="ml-auto text-gray-400">{totalValue > 0 ? ((d.value / totalValue) * 100).toFixed(1) : 0}%</span>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
         <div className={pieData.length > 0 ? 'lg:col-span-3' : 'lg:col-span-4'}>
           {holdings.length === 0 ? (
             <EmptyState icon={BarChart3} title="No holdings" description="Add your investment holdings to track performance." actionLabel="Add Holding" onAction={() => setShowForm(true)} />
           ) : (
-            <div className="rounded-2xl border border-gray-100 bg-white overflow-hidden">
+            <motion.div 
+              className="rounded-2xl border border-gray-100 bg-white overflow-hidden"
+              whileHover={{ 
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              transition={{ duration: 0.3 }}
+            >
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -469,12 +510,23 @@ export default function Investments() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sortedHoldings.map(h => {
+                    {sortedHoldings.map((h, idx) => {
                       const mv = h.market_value || h.quantity * h.current_price;
                       const pl = (h.current_price - h.avg_cost) * h.quantity;
                       const plPct = h.avg_cost > 0 ? ((h.current_price - h.avg_cost) / h.avg_cost * 100).toFixed(2) : 0;
                       return (
-                        <TableRow key={h.id} className="hover:bg-gray-50/50">
+                        <motion.tr 
+                          key={h.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          whileHover={{ 
+                            backgroundColor: 'rgba(249, 250, 251, 0.8)',
+                            x: 4,
+                            transition: { duration: 0.2 }
+                          }}
+                          className="border-b border-gray-100"
+                        >
                           <TableCell>
                             <p className="text-sm font-semibold text-gray-900">{h.symbol}</p>
                             <p className="text-xs text-gray-400 truncate max-w-[120px]">{h.name}</p>
@@ -489,11 +541,16 @@ export default function Investments() {
                             <span className="block text-xs">{plPct}%</span>
                           </TableCell>
                           <TableCell>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteHoldingMut.mutate(h.id)}>
-                              <Trash2 className="h-3.5 w-3.5 text-gray-400" />
-                            </Button>
+                            <motion.div
+                              whileHover={{ scale: 1.1, rotate: 5 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteHoldingMut.mutate(h.id)}>
+                                <Trash2 className="h-3.5 w-3.5 text-gray-400 hover:text-red-500 transition-colors" />
+                              </Button>
+                            </motion.div>
                           </TableCell>
-                        </TableRow>
+                        </motion.tr>
                       );
                     })}
                   </TableBody>
@@ -502,7 +559,7 @@ export default function Investments() {
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
