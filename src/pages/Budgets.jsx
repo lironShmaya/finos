@@ -48,29 +48,13 @@ export default function Budgets() {
         }
       }
       
-      // Update budget sections from categories and create missing budgets
-      const categoryIds = new Set();
+      // Update budget sections from their categories
       for (const b of allBudgets) {
         if (b.category_id) {
           const cat = allCategories.find(c => c.id === b.category_id);
           if (cat && cat.section && b.section !== cat.section) {
             await base44.entities.Budget.update(b.id, { section: cat.section });
           }
-          categoryIds.add(b.category_id);
-        }
-      }
-      
-      // Create budgets for categories that don't have one
-      for (const cat of allCategories) {
-        if (!categoryIds.has(cat.id)) {
-          await base44.entities.Budget.create({
-            item_name: cat.name,
-            category_id: cat.id,
-            category_name: cat.name,
-            section: cat.section || 'expenses',
-            amount: 0,
-            period: 'monthly'
-          });
         }
       }
       
