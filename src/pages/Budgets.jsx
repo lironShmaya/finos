@@ -35,6 +35,40 @@ export default function Budgets() {
     queryFn: () => base44.entities.Transaction.list('-date', 500),
   });
 
+  // Sync budgets with categories on load
+  useEffect(() => {
+    const syncBudgets = async () => {
+      const allBudgets = await base44.entities.Budget.list();
+      const allCategories = await base44.entities.Category.list();
+      
+      // Delete budgets without matching category
+      for (const b of allBudgets) {
+        if (b.category_id && !allCategories.some(c => c.id === b.category_id)) {
+          await base44.entities.Budget.delete(b.id);
+        }
+      }
+      
+      // Create budgets for categories that don't have one
+      const categoryIds = new Set(allBudgets.map(b => b.category_id).filter(Boolean));
+      for (const cat of allCategories) {
+        if (!categoryIds.has(cat.id)) {
+          await base44.entities.Budget.create({
+            item_name: cat.name,
+            category_id: cat.id,
+            category_name: cat.name,
+            section: cat.section || 'expenses',
+            amount: 0,
+            period: 'monthly'
+          });
+        }
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+    };
+    
+    syncBudgets();
+  }, [queryClient]);
+
   // Real-time auto-updates
   useEffect(() => {
     const unsubscribeBudget = base44.entities.Budget.subscribe(() => {
