@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/shared/PageHeader';
 import MonthSnapshot from '../components/dashboard/MonthSnapshot';
@@ -11,6 +11,8 @@ import RecentTransactions from '../components/dashboard/RecentTransactions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Dashboard() {
+  const queryClient = useQueryClient();
+
   const { data: transactions = [], isLoading: txLoading } = useQuery({
     queryKey: ['transactions'],
     queryFn: () => base44.entities.Transaction.list('-date', 500),
@@ -30,6 +32,32 @@ export default function Dashboard() {
     queryKey: ['goals'],
     queryFn: () => base44.entities.Goal.list(),
   });
+
+  // Real-time subscriptions for auto-updates
+  useEffect(() => {
+    const unsubscribeTx = base44.entities.Transaction.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    });
+
+    const unsubscribeAcc = base44.entities.Account.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+    });
+
+    const unsubscribeBudget = base44.entities.Budget.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+    });
+
+    const unsubscribeGoal = base44.entities.Goal.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['goals'] });
+    });
+
+    return () => {
+      unsubscribeTx();
+      unsubscribeAcc();
+      unsubscribeBudget();
+      unsubscribeGoal();
+    };
+  }, [queryClient]);
 
   const isLoading = txLoading || accLoading;
 
