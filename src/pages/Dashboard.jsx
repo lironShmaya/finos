@@ -51,7 +51,13 @@ export default function Dashboard() {
   const monthName = now.toLocaleString('default', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6"
+    >
       <PageHeader title="Dashboard" subtitle={monthName} />
       
       <MonthSnapshot transactions={transactions} />
@@ -65,6 +71,6 @@ export default function Dashboard() {
         <RecentTransactions transactions={transactions} />
         <GoalsProgress goals={goals} />
       </div>
-    </div>
+    </motion.div>
   );
 }

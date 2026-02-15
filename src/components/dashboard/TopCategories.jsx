@@ -2,7 +2,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { formatCurrency } from '../shared/CurrencyFormatter';
 
-const COLORS = ['#111827', '#2563EB', '#7C3AED', '#059669', '#D97706', '#DC2626', '#8B5CF6', '#0891B2'];
+const COLORS = ['#06B6D4', '#3B82F6', '#8B5CF6', '#EC4899', '#F97316', '#14B8A6', '#6366F1', '#0EA5E9'];
 
 export default function TopCategories({ transactions, budgets, currency = 'USD' }) {
   const now = new Date();
@@ -41,7 +41,12 @@ export default function TopCategories({ transactions, budgets, currency = 'USD' 
   }
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4, duration: 0.4 }}
+      className="rounded-2xl border border-gray-100 bg-white p-6 hover:shadow-lg transition-shadow duration-300"
+    >
       <h3 className="text-sm font-semibold text-gray-900 mb-4">Top Categories This Month</h3>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={data} layout="vertical" margin={{ left: 0, right: 16 }}>
@@ -58,6 +63,6 @@ export default function TopCategories({ transactions, budgets, currency = 'USD' 
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </motion.div>
   );
 }

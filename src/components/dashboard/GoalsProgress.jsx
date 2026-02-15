@@ -14,16 +14,27 @@ export default function GoalsProgress({ goals }) {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.7, duration: 0.4 }}
+      className="rounded-2xl border border-gray-100 bg-white p-6 hover:shadow-lg transition-shadow duration-300"
+    >
       <div className="flex items-center gap-2 mb-5">
-        <Target className="h-4 w-4 text-gray-400" />
+        <Target className="h-4 w-4 text-purple-500" />
         <h3 className="text-sm font-semibold text-gray-900">Goals Progress</h3>
       </div>
       <div className="space-y-4">
-        {goals.slice(0, 5).map(goal => {
+        {goals.slice(0, 5).map((goal, idx) => {
           const pct = goal.target_amount > 0 ? Math.min(100, ((goal.current_amount || 0) / goal.target_amount) * 100) : 0;
           return (
-            <div key={goal.id} className="space-y-1.5">
+            <motion.div 
+              key={goal.id} 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8 + idx * 0.1, duration: 0.3 }}
+              className="space-y-1.5"
+            >
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium text-gray-700">{goal.name}</span>
               <span className="text-xs text-gray-400">{pct.toFixed(0)}%</span>
@@ -33,10 +44,10 @@ export default function GoalsProgress({ goals }) {
               <span>{formatCurrency(goal.current_amount || 0, goal.currency)}</span>
               <span>{formatCurrency(goal.target_amount, goal.currency)}</span>
             </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
-    </div>
+    </motion.div>
   );
 }
