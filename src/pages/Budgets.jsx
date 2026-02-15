@@ -203,17 +203,11 @@ export default function Budgets() {
                     return (
                       <Draggable key={b.id} draggableId={b.id} index={idx}>
                         {(provided, snapshot) => (
-                          <motion.tr 
+                          <tr 
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.03 }}
-                            className={`group ${snapshot.isDragging ? 'bg-gray-50' : ''}`}
-                            style={{
-                              ...provided.draggableProps.style,
-                              backgroundColor: snapshot.isDragging ? 'rgb(249, 250, 251)' : undefined,
-                            }}
+                            className={`group transition-colors ${snapshot.isDragging ? 'bg-blue-50 shadow-lg' : ''}`}
+                            style={provided.draggableProps.style}
                           >
                             <td className="px-2" {...provided.dragHandleProps}>
                               <GripVertical className="h-4 w-4 text-gray-300 cursor-grab active:cursor-grabbing" />
