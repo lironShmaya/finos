@@ -49,12 +49,28 @@
  */
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
+import Budgets from './pages/Budgets';
+import Bills from './pages/Bills';
+import NetWorth from './pages/NetWorth';
+import Investments from './pages/Investments';
+import Pensions from './pages/Pensions';
+import Goals from './pages/Goals';
+import Calculators from './pages/Calculators';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Dashboard": Dashboard,
     "Transactions": Transactions,
+    "Budgets": Budgets,
+    "Bills": Bills,
+    "NetWorth": NetWorth,
+    "Investments": Investments,
+    "Pensions": Pensions,
+    "Goals": Goals,
+    "Calculators": Calculators,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
