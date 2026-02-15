@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/shared/PageHeader';
 import MonthSnapshot from '../components/dashboard/MonthSnapshot';
+import BudgetBreakdown from '../components/dashboard/BudgetBreakdown';
 import TopCategories from '../components/dashboard/TopCategories';
 import NetWorthTrend from '../components/dashboard/NetWorthTrend';
 import GoalsProgress from '../components/dashboard/GoalsProgress';
@@ -90,6 +91,8 @@ export default function Dashboard() {
       <PageHeader title="Dashboard" subtitle={monthName} />
       
       <MonthSnapshot transactions={transactions} />
+
+      <BudgetBreakdown budgets={budgets} transactions={transactions} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <TopCategories transactions={transactions} budgets={budgets} />
