@@ -57,6 +57,7 @@ import NetWorth from './pages/NetWorth';
 import Pensions from './pages/Pensions';
 import Settings from './pages/Settings';
 import Transactions from './pages/Transactions';
+import AnnualDashboard from './pages/AnnualDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +72,7 @@ export const PAGES = {
     "Pensions": Pensions,
     "Settings": Settings,
     "Transactions": Transactions,
+    "AnnualDashboard": AnnualDashboard,
 }
 
 export const pagesConfig = {
