@@ -48,8 +48,19 @@ export default function Budgets() {
         }
       }
       
+      // Update budget sections from categories and create missing budgets
+      const categoryIds = new Set();
+      for (const b of allBudgets) {
+        if (b.category_id) {
+          const cat = allCategories.find(c => c.id === b.category_id);
+          if (cat && cat.section && b.section !== cat.section) {
+            await base44.entities.Budget.update(b.id, { section: cat.section });
+          }
+          categoryIds.add(b.category_id);
+        }
+      }
+      
       // Create budgets for categories that don't have one
-      const categoryIds = new Set(allBudgets.map(b => b.category_id).filter(Boolean));
       for (const cat of allCategories) {
         if (!categoryIds.has(cat.id)) {
           await base44.entities.Budget.create({
