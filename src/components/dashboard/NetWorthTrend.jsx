@@ -21,7 +21,7 @@ export default function NetWorthTrend({ accounts, currency = 'USD' }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.4 }}
-      className="rounded-2xl border border-gray-100 bg-white p-6 hover:shadow-lg transition-shadow duration-300"
+      className="rounded-2xl border border-gray-100 bg-white p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
     >
       <div className="flex items-center justify-between mb-1">
         <h3 className="text-sm font-semibold text-gray-900">Net Worth</h3>

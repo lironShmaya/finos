@@ -19,7 +19,7 @@ export default function GoalsProgress({ goals }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.7, duration: 0.4 }}
-      className="rounded-2xl border border-gray-100 bg-white p-6 hover:shadow-lg transition-shadow duration-300"
+      className="rounded-2xl border border-gray-100 bg-white p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
     >
       <div className="flex items-center gap-2 mb-5">
         <Target className="h-4 w-4 text-purple-500" />
