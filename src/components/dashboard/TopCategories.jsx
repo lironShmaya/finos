@@ -49,8 +49,7 @@ export default function TopCategories({ transactions, budgets, currency = 'USD' 
       className="rounded-2xl border border-gray-100 bg-white p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
     >
       <h3 className="text-sm font-semibold text-gray-900 mb-4">Top Categories This Month</h3>
-      <div className="flex-1 min-h-0">
-        <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height={240}>
         <BarChart data={data} layout="vertical" margin={{ left: 0, right: 16 }}>
           <XAxis type="number" hide />
           <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
@@ -65,7 +64,6 @@ export default function TopCategories({ transactions, budgets, currency = 'USD' 
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-      </div>
     </motion.div>
   );
 }
