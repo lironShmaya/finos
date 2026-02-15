@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PageHeader from '../components/shared/PageHeader';
@@ -11,7 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Landmark, Pencil, Trash2, Upload, FileText, Shield } from 'lucide-react';
+import UploadMasleka from '../components/pensions/UploadMasleka';
 
 export default function Pensions() {
   const [showForm, setShowForm] = useState(false);
@@ -27,6 +29,14 @@ export default function Pensions() {
     queryKey: ['persons'],
     queryFn: () => base44.entities.Person.list(),
   });
+
+  // Real-time auto-updates
+  useEffect(() => {
+    const unsubscribe = base44.entities.PensionPlan.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['pensionPlans'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
 
   const createMut = useMutation({
     mutationFn: (d) => base44.entities.PensionPlan.create(d),
@@ -88,10 +98,16 @@ export default function Pensions() {
               <Plus className="h-4 w-4" /> Add Plan
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>{editing ? 'Edit Plan' : 'New Pension Plan'}</DialogTitle>
+              <DialogTitle>{editing ? 'Edit Plan' : 'Add Pension Plan'}</DialogTitle>
             </DialogHeader>
+            <Tabs defaultValue="manual" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+                <TabsTrigger value="upload">Upload Masleka</TabsTrigger>
+              </TabsList>
+              <TabsContent value="manual" className="mt-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div><Label>Provider</Label><Input name="provider" defaultValue={editing?.provider || ''} required placeholder="Migdal, Menora..." /></div>
@@ -156,6 +172,15 @@ export default function Pensions() {
                 <Button type="submit">{editing ? 'Update' : 'Create'}</Button>
               </div>
             </form>
+              </TabsContent>
+              <TabsContent value="upload" className="mt-4">
+                <UploadMasleka onComplete={(data) => {
+                  console.log('Extracted data:', data);
+                  setShowForm(false);
+                  queryClient.invalidateQueries({ queryKey: ['pensionPlans'] });
+                }} />
+              </TabsContent>
+            </Tabs>
           </DialogContent>
         </Dialog>
       </PageHeader>
