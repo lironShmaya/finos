@@ -188,29 +188,18 @@ export default function Settings() {
                         <option value="subscriptions">Subscriptions</option>
                         <option value="savings">Savings</option>
                       </select>
-                        <SelectContent>
-                          <SelectItem value="income">Income</SelectItem>
-                          <SelectItem value="expenses">Expenses</SelectItem>
-                          <SelectItem value="bills">Bills</SelectItem>
-                          <SelectItem value="subscriptions">Subscriptions</SelectItem>
-                          <SelectItem value="savings">Savings</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Type</Label>
-                      <Select name="type" defaultValue={editingCat?.type || 'essentials'}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="essentials">Essentials</SelectItem>
-                          <SelectItem value="discretionary">Discretionary</SelectItem>
-                          <SelectItem value="investment">Investment</SelectItem>
-                          <SelectItem value="bills">Bills</SelectItem>
-                          <SelectItem value="debt">Debt</SelectItem>
-                          <SelectItem value="income">Income</SelectItem>
-                          <SelectItem value="transfer">Transfer</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        </div>
+                        <div>
+                          <Label>Type</Label>
+                          <select name="type" defaultValue={editingCat?.type || 'essentials'} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                            <option value="essentials">Essentials</option>
+                            <option value="discretionary">Discretionary</option>
+                            <option value="investment">Investment</option>
+                            <option value="bills">Bills</option>
+                            <option value="debt">Debt</option>
+                            <option value="income">Income</option>
+                            <option value="transfer">Transfer</option>
+                          </select>
                     </div>
                     <div><Label>Color</Label><Input name="color" type="color" defaultValue={editingCat?.color || '#6B7280'} /></div>
                     <div className="flex justify-end gap-3">
