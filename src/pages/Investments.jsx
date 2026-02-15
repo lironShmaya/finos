@@ -157,6 +157,8 @@ export default function Investments() {
       let holdingId = existingHolding?.id;
 
       if (orderData.order_type === 'buy') {
+        const useCurrentPrice = orderData.current_price || orderData.price;
+        
         if (existingHolding) {
           // Update existing holding - calculate weighted average cost
           const totalCost = (existingHolding.quantity * existingHolding.avg_cost) + (orderData.quantity * orderData.price);
@@ -166,10 +168,10 @@ export default function Investments() {
           await base44.entities.Holding.update(existingHolding.id, {
             quantity: totalQty,
             avg_cost: newAvgCost,
-            current_price: orderData.price,
-            market_value: totalQty * orderData.price,
-            unrealized_pl: (orderData.price - newAvgCost) * totalQty,
-            unrealized_pl_pct: newAvgCost > 0 ? (((orderData.price - newAvgCost) / newAvgCost) * 100) : 0,
+            current_price: useCurrentPrice,
+            market_value: totalQty * useCurrentPrice,
+            unrealized_pl: (useCurrentPrice - newAvgCost) * totalQty,
+            unrealized_pl_pct: newAvgCost > 0 ? (((useCurrentPrice - newAvgCost) / newAvgCost) * 100) : 0,
           });
         } else {
           // Create new holding
@@ -179,17 +181,17 @@ export default function Investments() {
             asset_class: orderData.asset_class,
             quantity: orderData.quantity,
             avg_cost: orderData.price,
-            current_price: orderData.price,
+            current_price: useCurrentPrice,
             currency: orderData.currency,
-            market_value: orderData.quantity * orderData.price,
-            unrealized_pl: 0,
-            unrealized_pl_pct: 0,
+            market_value: orderData.quantity * useCurrentPrice,
+            unrealized_pl: (useCurrentPrice - orderData.price) * orderData.quantity,
+            unrealized_pl_pct: orderData.price > 0 ? (((useCurrentPrice - orderData.price) / orderData.price) * 100) : 0,
           });
           holdingId = newHolding.id;
         }
         
-        // Update current price from market
-        if (holdingId && orderData.asset_class !== 'cash') {
+        // Update current price from market only if not manually provided
+        if (holdingId && orderData.asset_class !== 'cash' && !orderData.current_price) {
           try {
             await base44.functions.invoke('updateStockPrice', { holding_id: holdingId });
           } catch (e) {
@@ -205,6 +207,7 @@ export default function Investments() {
         }
 
         const newQty = existingHolding.quantity - orderData.quantity;
+        const useCurrentPrice = orderData.current_price || orderData.price;
 
         if (newQty <= 0) {
           // Delete holding if quantity reaches 0 or below
@@ -214,10 +217,10 @@ export default function Investments() {
           // Update holding with reduced quantity
           await base44.entities.Holding.update(existingHolding.id, {
             quantity: newQty,
-            current_price: orderData.price,
-            market_value: newQty * orderData.price,
-            unrealized_pl: (orderData.price - existingHolding.avg_cost) * newQty,
-            unrealized_pl_pct: existingHolding.avg_cost > 0 ? (((orderData.price - existingHolding.avg_cost) / existingHolding.avg_cost) * 100) : 0,
+            current_price: useCurrentPrice,
+            market_value: newQty * useCurrentPrice,
+            unrealized_pl: (useCurrentPrice - existingHolding.avg_cost) * newQty,
+            unrealized_pl_pct: existingHolding.avg_cost > 0 ? (((useCurrentPrice - existingHolding.avg_cost) / existingHolding.avg_cost) * 100) : 0,
           });
           toast.success(`Sold ${orderData.quantity} shares of ${orderData.symbol}`);
         }
@@ -268,7 +271,7 @@ export default function Investments() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard 
           title="Total Portfolio Value" 
           value={formatCurrency(totalValue, displayCurrency)} 
@@ -327,22 +330,28 @@ export default function Investments() {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <StatCard 
-          title="Cash" 
-          value={formatCurrency(totalCash, displayCurrency)} 
-          icon={BarChart3} 
-        />
-        <StatCard 
-          title="% Cash" 
-          value={`${cashPct.toFixed(2)}%`} 
-          icon={BarChart3} 
-        />
-        <StatCard 
-          title="USD/ILS" 
-          value={EXCHANGE_RATES.USD.ILS.toFixed(3)} 
-          icon={BarChart3} 
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="scale-90 origin-top-left">
+          <StatCard 
+            title="Cash" 
+            value={formatCurrency(totalCash, displayCurrency)} 
+            icon={BarChart3} 
+          />
+        </div>
+        <div className="scale-90 origin-top">
+          <StatCard 
+            title="% Cash" 
+            value={`${cashPct.toFixed(2)}%`} 
+            icon={BarChart3} 
+          />
+        </div>
+        <div className="scale-90 origin-top-right">
+          <StatCard 
+            title="USD/ILS" 
+            value="3.590" 
+            icon={BarChart3} 
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

@@ -17,6 +17,7 @@ export default function OrderForm({ onSubmit, onCancel }) {
       quantity: parseFloat(fd.get('quantity')),
       currency: fd.get('currency') || 'USD',
       asset_class: fd.get('asset_class') || 'stocks',
+      current_price: fd.get('current_price') ? parseFloat(fd.get('current_price')) : null,
     };
     onSubmit(data);
   };
@@ -73,6 +74,10 @@ export default function OrderForm({ onSubmit, onCancel }) {
               </SelectContent>
             </Select>
           </div>
+        </div>
+        <div>
+          <Label>Current Price (optional)</Label>
+          <Input name="current_price" type="number" step="0.01" placeholder="Leave empty to fetch from market" />
         </div>
         <div>
           <Label>Asset Class</Label>
