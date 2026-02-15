@@ -21,7 +21,7 @@ export default function MonthSnapshot({ transactions, currency = 'USD' }) {
       {[
         { title: "Income", value: formatCurrency(income, currency), icon: TrendingUp, subtitle: "This month", delay: 0 },
         { title: "Spending", value: formatCurrency(expenses, currency), icon: TrendingDown, subtitle: "This month", delay: 0.1 },
-        { title: "Net Savings", value: formatCurrency(savings, currency), icon: PiggyBank, subtitle: `${savingsRate}% savings rate`, trendUp: savings >= 0, trend: `${savingsRate}%`, delay: 0.2 },
+        { title: "Net Savings", value: formatCurrency(savings, currency), icon: PiggyBank, subtitle: `${savingsRate}% rate`, trendUp: savings >= 0, delay: 0.2 },
         { title: "Cash Flow", value: formatCurrency(savings, currency), icon: Wallet, subtitle: savings >= 0 ? 'Positive' : 'Negative', delay: 0.3 }
       ].map((card, i) => (
         <motion.div 
@@ -29,6 +29,7 @@ export default function MonthSnapshot({ transactions, currency = 'USD' }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: card.delay, duration: 0.4 }}
+          className="h-full"
         >
           <StatCard {...card} />
         </motion.div>
