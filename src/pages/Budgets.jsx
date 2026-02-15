@@ -95,7 +95,7 @@ export default function Budgets() {
     const cat = categories.find(c => c.id === fd.get('category_id'));
     const data = {
       item_name: fd.get('item_name'),
-      section: fd.get('section'),
+      section: cat?.section || fd.get('section'),
       category_id: fd.get('category_id') || null,
       category_name: cat?.name || '',
       amount: parseFloat(fd.get('amount')),
@@ -328,20 +328,31 @@ export default function Budgets() {
                   <Input name="item_name" defaultValue={editing?.item_name || ''} required placeholder="e.g., Groceries, Spotify" />
                 </div>
                 <div>
-                  <Label>Section</Label>
-                  <select name="section" defaultValue={editing?.section || 'expenses'} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                  <Label>Category (auto-maps to section)</Label>
+                  <select 
+                    name="category_id" 
+                    defaultValue={editing?.category_id || ''} 
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    onChange={(e) => {
+                      const selectedCat = categories.find(c => c.id === e.target.value);
+                      const sectionInput = e.target.form.querySelector('[name="section"]');
+                      if (selectedCat && sectionInput) {
+                        sectionInput.value = selectedCat.section || 'expenses';
+                      }
+                    }}
+                  >
+                    <option value="">Select category (optional)</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name} ({c.section || 'expenses'})</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label>Section (auto-filled from category)</Label>
+                  <select name="section" defaultValue={editing?.section || 'expenses'} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring bg-gray-50">
                     <option value="income">Income</option>
                     <option value="expenses">Expenses</option>
                     <option value="bills">Bills</option>
                     <option value="subscriptions">Subscriptions</option>
                     <option value="savings">Savings</option>
-                  </select>
-                </div>
-                <div>
-                  <Label>Category (for transaction matching)</Label>
-                  <select name="category_id" defaultValue={editing?.category_id || ''} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
-                    <option value="">Select category (optional)</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
