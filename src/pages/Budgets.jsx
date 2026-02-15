@@ -44,9 +44,14 @@ export default function Budgets() {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
     });
 
+    const unsubscribeCat = base44.entities.Category.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    });
+
     return () => {
       unsubscribeBudget();
       unsubscribeTx();
+      unsubscribeCat();
     };
   }, [queryClient]);
 
@@ -105,6 +110,18 @@ export default function Budgets() {
     }
   };
 
+  // Helper to get current category name by looking up the category
+  const getCategoryName = (budget) => {
+    const category = categories.find(c => c.id === budget.category_id);
+    return category?.name || budget.category_name || 'Unknown';
+  };
+
+  // Map budgets to include current category names
+  const budgetsWithCurrentNames = budgets.map(b => ({
+    ...b,
+    currentCategoryName: getCategoryName(b)
+  }));
+
   const sections = [
     {
       title: 'INCOME',
@@ -113,9 +130,10 @@ export default function Budgets() {
       borderColor: 'border-emerald-200',
       bgColor: 'bg-emerald-50',
       textColor: 'text-emerald-700',
-      budgets: budgets.filter(b => 
-        ['Liren\'s Salary', 'Tehila\'s Salary'].includes(b.category_name)
-      )
+      budgets: budgetsWithCurrentNames.filter(b => {
+        const cat = categories.find(c => c.id === b.category_id);
+        return cat?.type === 'income';
+      })
     },
     {
       title: 'EXPENSES',
@@ -124,11 +142,10 @@ export default function Budgets() {
       borderColor: 'border-rose-200',
       bgColor: 'bg-rose-50',
       textColor: 'text-rose-700',
-      budgets: budgets.filter(b => 
-        ['Groceries', 'Netflix', 'Patreon', 'Haircuts', 'Food outside', 'Car Charging', 
-         'Household', 'Misc', 'Clothes', 'Entertainment', 'TradingView', 'Gas', 
-         'ChatGPT', 'Mikveh', 'Nails', 'Spotify', 'Parking'].includes(b.category_name)
-      )
+      budgets: budgetsWithCurrentNames.filter(b => {
+        const cat = categories.find(c => c.id === b.category_id);
+        return cat?.type === 'discretionary';
+      })
     },
     {
       title: 'BILLS',
@@ -137,10 +154,10 @@ export default function Budgets() {
       borderColor: 'border-blue-200',
       bgColor: 'bg-blue-50',
       textColor: 'text-blue-700',
-      budgets: budgets.filter(b => 
-        ['Rent', 'Electricity', 'Water', 'Internet', 'Cellular', 'Car 1 Lease', 
-         'Car 2 Lease', 'Car 1 Insurance', 'Car 2 Insurance', 'Daycare'].includes(b.category_name)
-      )
+      budgets: budgetsWithCurrentNames.filter(b => {
+        const cat = categories.find(c => c.id === b.category_id);
+        return cat?.type === 'essentials';
+      })
     },
     {
       title: 'SAVINGS',
@@ -149,9 +166,10 @@ export default function Budgets() {
       borderColor: 'border-purple-200',
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-700',
-      budgets: budgets.filter(b => 
-        ['02s Savings', 'COF ESPP', 'Investing', 'Tehila\'s Pension'].includes(b.category_name)
-      )
+      budgets: budgetsWithCurrentNames.filter(b => {
+        const cat = categories.find(c => c.id === b.category_id);
+        return cat?.type === 'investment';
+      })
     }
   ];
 
@@ -190,7 +208,7 @@ export default function Budgets() {
                   className="group"
                 >
                   <td className="px-4 py-3">
-                    <span className="text-sm font-medium text-gray-900">{b.category_name}</span>
+                    <span className="text-sm font-medium text-gray-900">{b.currentCategoryName}</span>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <span className="text-sm text-gray-700">{formatCurrency(b.amount)}</span>
