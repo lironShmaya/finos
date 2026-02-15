@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, BarChart3, Pencil, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
+import { Plus, BarChart3, Pencil, Trash2, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const COLORS = ['#111827', '#2563EB', '#7C3AED', '#059669', '#D97706', '#DC2626', '#0891B2', '#8B5CF6'];
@@ -20,6 +21,7 @@ const COLORS = ['#111827', '#2563EB', '#7C3AED', '#059669', '#D97706', '#DC2626'
 export default function Investments() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [updatingPrices, setUpdatingPrices] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: holdings = [] } = useQuery({
@@ -34,6 +36,19 @@ export default function Investments() {
     });
     return unsubscribe;
   }, [queryClient]);
+
+  const handleUpdateAllPrices = async () => {
+    setUpdatingPrices(true);
+    try {
+      const { data } = await base44.functions.invoke('updateAllHoldingPrices', {});
+      toast.success(`Updated ${data.updated} of ${data.total} holdings`);
+      queryClient.invalidateQueries({ queryKey: ['holdings'] });
+    } catch (error) {
+      toast.error('Failed to update prices: ' + error.message);
+    } finally {
+      setUpdatingPrices(false);
+    }
+  };
 
   const createMut = useMutation({
     mutationFn: (d) => base44.entities.Holding.create(d),
@@ -90,12 +105,23 @@ export default function Investments() {
   return (
     <div className="space-y-6">
       <PageHeader title="Investments" subtitle={`${holdings.length} holdings`}>
-        <Dialog open={showForm} onOpenChange={setShowForm}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="gap-2" onClick={() => setEditing(null)}>
-              <Plus className="h-4 w-4" /> Add Holding
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="gap-2" 
+            onClick={handleUpdateAllPrices}
+            disabled={updatingPrices || holdings.length === 0}
+          >
+            <RefreshCw className={`h-4 w-4 ${updatingPrices ? 'animate-spin' : ''}`} />
+            Update Prices
+          </Button>
+          <Dialog open={showForm} onOpenChange={setShowForm}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-2" onClick={() => setEditing(null)}>
+                <Plus className="h-4 w-4" /> Add Holding
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editing ? 'Edit Holding' : 'New Holding'}</DialogTitle>
@@ -145,6 +171,7 @@ export default function Investments() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </PageHeader>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
