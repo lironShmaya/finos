@@ -8,6 +8,7 @@ import OrderForm from '../components/investments/OrderForm';
 import { formatCurrency } from '../components/shared/CurrencyFormatter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, BarChart3, Trash2, TrendingUp, TrendingDown, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -16,11 +17,19 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 const COLORS = ['#111827', '#2563EB', '#7C3AED', '#059669', '#D97706', '#DC2626', '#0891B2', '#8B5CF6'];
 
+const EXCHANGE_RATES = {
+  USD: { USD: 1, ILS: 3.59, EUR: 0.92, GBP: 0.79 },
+  ILS: { USD: 0.28, ILS: 1, EUR: 0.26, GBP: 0.22 },
+  EUR: { USD: 1.09, ILS: 3.91, EUR: 1, GBP: 0.86 },
+  GBP: { USD: 1.27, ILS: 4.55, EUR: 1.16, GBP: 1 },
+};
+
 export default function Investments() {
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [updatingPrices, setUpdatingPrices] = useState(false);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('desc');
+  const [displayCurrency, setDisplayCurrency] = useState('USD');
   const queryClient = useQueryClient();
 
   const { data: holdings = [] } = useQuery({
@@ -73,10 +82,35 @@ export default function Investments() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['holdings'] }),
   });
 
-  const totalValue = holdings.reduce((s, h) => s + (h.market_value || h.quantity * h.current_price || 0), 0);
-  const totalCost = holdings.reduce((s, h) => s + (h.quantity * h.avg_cost || 0), 0);
+  // Convert to display currency
+  const convertCurrency = (amount, fromCurrency) => {
+    if (!fromCurrency || fromCurrency === displayCurrency) return amount;
+    const rate = EXCHANGE_RATES[fromCurrency]?.[displayCurrency] || 1;
+    return amount * rate;
+  };
+
+  // Calculate totals in display currency
+  const totalValue = holdings.reduce((s, h) => s + convertCurrency(h.market_value || h.quantity * h.current_price || 0, h.currency), 0);
+  const totalCost = holdings.reduce((s, h) => s + convertCurrency(h.quantity * h.avg_cost || 0, h.currency), 0);
   const totalPL = totalValue - totalCost;
-  const totalPLPct = totalCost > 0 ? ((totalPL / totalCost) * 100).toFixed(2) : 0;
+  const totalPLPct = totalCost > 0 ? ((totalPL / totalCost) * 100) : 0;
+
+  // Cash holdings
+  const cashHoldings = holdings.filter(h => h.asset_class === 'cash');
+  const totalCash = cashHoldings.reduce((s, h) => s + convertCurrency(h.market_value || h.quantity * h.current_price || 0, h.currency), 0);
+  const cashPct = totalValue > 0 ? ((totalCash / totalValue) * 100) : 0;
+
+  // Best and worst performers
+  const performersData = holdings
+    .filter(h => h.avg_cost > 0)
+    .map(h => ({
+      symbol: h.symbol,
+      plPct: ((h.current_price - h.avg_cost) / h.avg_cost) * 100
+    }))
+    .sort((a, b) => b.plPct - a.plPct);
+
+  const bestPerformer = performersData[0];
+  const worstPerformer = performersData[performersData.length - 1];
 
   const handleSort = (column) => {
     if (sortColumn === column) {
@@ -187,6 +221,17 @@ export default function Investments() {
     <div className="space-y-6">
       <PageHeader title="Investments" subtitle={`${holdings.length} holdings`}>
         <div className="flex gap-2">
+          <Select value={displayCurrency} onValueChange={setDisplayCurrency}>
+            <SelectTrigger className="w-24 h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="USD">USD</SelectItem>
+              <SelectItem value="ILS">ILS</SelectItem>
+              <SelectItem value="EUR">EUR</SelectItem>
+              <SelectItem value="GBP">GBP</SelectItem>
+            </SelectContent>
+          </Select>
           <Button 
             size="sm" 
             variant="outline" 
@@ -211,10 +256,60 @@ export default function Investments() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard title="Total Value" value={formatCurrency(totalValue)} icon={BarChart3} />
-        <StatCard title="Total P&L" value={formatCurrency(totalPL)} icon={totalPL >= 0 ? TrendingUp : TrendingDown} trend={`${totalPLPct}%`} trendUp={totalPL >= 0} />
-        <StatCard title="Total Cost" value={formatCurrency(totalCost)} icon={BarChart3} />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <StatCard 
+          title="Total Portfolio Value" 
+          value={formatCurrency(totalValue, displayCurrency)} 
+          icon={BarChart3} 
+        />
+        <StatCard 
+          title="Total Invested" 
+          value={formatCurrency(totalCost, displayCurrency)} 
+          icon={BarChart3} 
+        />
+        <StatCard 
+          title="Unrealized P/L" 
+          value={formatCurrency(totalPL, displayCurrency)} 
+          subtitle={`${totalPLPct.toFixed(2)}%`}
+          icon={totalPL >= 0 ? TrendingUp : TrendingDown} 
+          trend={totalPL >= 0 ? 'positive' : 'negative'}
+          trendUp={totalPL >= 0} 
+        />
+        <StatCard 
+          title="Best Performer" 
+          value={bestPerformer?.symbol || 'N/A'} 
+          subtitle={bestPerformer ? `${bestPerformer.plPct.toFixed(2)}%` : ''}
+          icon={TrendingUp} 
+        />
+        <StatCard 
+          title="Worst Performer" 
+          value={worstPerformer?.symbol || 'N/A'} 
+          subtitle={worstPerformer ? `${worstPerformer.plPct.toFixed(2)}%` : ''}
+          icon={TrendingDown} 
+        />
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatCard 
+          title="Cash" 
+          value={formatCurrency(totalCash, displayCurrency)} 
+          icon={BarChart3} 
+        />
+        <StatCard 
+          title="% Cash" 
+          value={`${cashPct.toFixed(2)}%`} 
+          icon={BarChart3} 
+        />
+        <StatCard 
+          title="USD/ILS" 
+          value={EXCHANGE_RATES.USD.ILS.toFixed(3)} 
+          icon={BarChart3} 
+        />
+        <StatCard 
+          title="ILS" 
+          value={formatCurrency(totalValue * EXCHANGE_RATES[displayCurrency].ILS, 'ILS')} 
+          icon={BarChart3} 
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
