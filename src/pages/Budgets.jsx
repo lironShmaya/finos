@@ -255,7 +255,7 @@ export default function Budgets() {
                                 </motion.div>
                               </div>
                             </td>
-                          </motion.tr>
+                          </tr>
                         )}
                       </Draggable>
                     );
