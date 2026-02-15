@@ -119,15 +119,12 @@ export default function Settings() {
                     <div><Label>Name</Label><Input name="name" defaultValue={editingPerson?.name || ''} required /></div>
                     <div>
                       <Label>Relationship</Label>
-                      <Select name="relationship" defaultValue={editingPerson?.relationship || 'self'}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="self">Self</SelectItem>
-                          <SelectItem value="spouse">Spouse</SelectItem>
-                          <SelectItem value="child">Child</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <select name="relationship" defaultValue={editingPerson?.relationship || 'self'} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                        <option value="self">Self</option>
+                        <option value="spouse">Spouse</option>
+                        <option value="child">Child</option>
+                        <option value="other">Other</option>
+                      </select>
                     </div>
                     <div><Label>Notes</Label><Input name="notes" defaultValue={editingPerson?.notes || ''} /></div>
                     <div className="flex justify-end gap-3">
