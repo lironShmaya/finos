@@ -10,25 +10,36 @@ export default function BudgetBreakdown({ budgets, transactions }) {
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
 
-  // Group budgets by type
-  const incomeBudgets = budgets.filter(b => 
-    ['Liren\'s Salary', 'Tehila\'s Salary'].includes(b.category_name)
-  );
+  // Group budgets by category type
+  const getCategoryType = (categoryId) => {
+    // Find category in the list - we'll need to fetch categories
+    // For now, use category_name as fallback
+    return null;
+  };
   
-  const expensesBudgets = budgets.filter(b => 
-    ['Groceries', 'Netflix', 'Patreon', 'Haircuts', 'Food outside', 'Car Charging', 
-     'Household', 'Misc', 'Clothes', 'Entertainment', 'TradingView', 'Gas', 
-     'ChatGPT', 'Mikveh', 'Nails', 'Spotify', 'Parking'].includes(b.category_name)
-  );
+  const incomeBudgets = budgets.filter(b => {
+    const catName = b.category_name?.toLowerCase() || '';
+    return catName.includes('salary') || catName.includes('income') || catName.includes('freelance');
+  });
   
-  const billsBudgets = budgets.filter(b => 
-    ['Rent', 'Electricity', 'Water', 'Internet', 'Cellular', 'Car 1 Lease', 
-     'Car 2 Lease', 'Car 1 Insurance', 'Car 2 Insurance', 'Daycare'].includes(b.category_name)
-  );
+  const expensesBudgets = budgets.filter(b => {
+    const catName = b.category_name?.toLowerCase() || '';
+    return catName.includes('groceries') || catName.includes('dining') || catName.includes('entertainment') || 
+           catName.includes('shopping') || catName.includes('food') || catName.includes('clothes');
+  });
   
-  const savingsBudgets = budgets.filter(b => 
-    ['02s Savings', 'COF ESPP', 'Investing', 'Tehila\'s Pension'].includes(b.category_name)
-  );
+  const billsBudgets = budgets.filter(b => {
+    const catName = b.category_name?.toLowerCase() || '';
+    return catName.includes('rent') || catName.includes('utilities') || catName.includes('subscription') ||
+           catName.includes('internet') || catName.includes('cellular') || catName.includes('insurance') ||
+           catName.includes('electricity') || catName.includes('water') || catName.includes('lease');
+  });
+  
+  const savingsBudgets = budgets.filter(b => {
+    const catName = b.category_name?.toLowerCase() || '';
+    return catName.includes('saving') || catName.includes('invest') || catName.includes('pension') ||
+           catName.includes('espp');
+  });
 
   const getSpent = (categoryName) => {
     return thisMonthTx
