@@ -109,6 +109,17 @@ export default function Budgets() {
     }
   };
 
+  // Update budgets based on their category's section
+  const budgetsWithCorrectSection = budgets.map(b => {
+    if (b.category_id) {
+      const cat = categories.find(c => c.id === b.category_id);
+      if (cat && cat.section !== b.section) {
+        return { ...b, section: cat.section };
+      }
+    }
+    return b;
+  });
+
   const sections = [
     {
       title: 'INCOME',
@@ -117,7 +128,7 @@ export default function Budgets() {
       borderColor: 'border-emerald-200',
       bgColor: 'bg-emerald-50',
       textColor: 'text-emerald-700',
-      budgets: budgets.filter(b => b.section === 'income').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
+      budgets: budgetsWithCorrectSection.filter(b => b.section === 'income').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     },
     {
       title: 'EXPENSES',
@@ -126,7 +137,7 @@ export default function Budgets() {
       borderColor: 'border-rose-200',
       bgColor: 'bg-rose-50',
       textColor: 'text-rose-700',
-      budgets: budgets.filter(b => b.section === 'expenses').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
+      budgets: budgetsWithCorrectSection.filter(b => b.section === 'expenses').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     },
     {
       title: 'BILLS',
@@ -135,7 +146,7 @@ export default function Budgets() {
       borderColor: 'border-blue-200',
       bgColor: 'bg-blue-50',
       textColor: 'text-blue-700',
-      budgets: budgets.filter(b => b.section === 'bills').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
+      budgets: budgetsWithCorrectSection.filter(b => b.section === 'bills').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     },
     {
       title: 'SUBSCRIPTIONS',
@@ -144,7 +155,7 @@ export default function Budgets() {
       borderColor: 'border-amber-200',
       bgColor: 'bg-amber-50',
       textColor: 'text-amber-700',
-      budgets: budgets.filter(b => b.section === 'subscriptions').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
+      budgets: budgetsWithCorrectSection.filter(b => b.section === 'subscriptions').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     },
     {
       title: 'SAVINGS',
@@ -153,7 +164,7 @@ export default function Budgets() {
       borderColor: 'border-purple-200',
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-700',
-      budgets: budgets.filter(b => b.section === 'savings').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
+      budgets: budgetsWithCorrectSection.filter(b => b.section === 'savings').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     }
   ];
 
