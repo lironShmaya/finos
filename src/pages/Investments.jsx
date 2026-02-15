@@ -9,6 +9,7 @@ import { formatCurrency } from '../components/shared/CurrencyFormatter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, BarChart3, Trash2, TrendingUp, TrendingDown, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -30,6 +31,7 @@ export default function Investments() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('desc');
   const [displayCurrency, setDisplayCurrency] = useState('USD');
+  const [timeRange, setTimeRange] = useState('all');
   const queryClient = useQueryClient();
 
   const { data: holdings = [] } = useQuery({
@@ -41,6 +43,27 @@ export default function Investments() {
     queryKey: ['orders'],
     queryFn: () => base44.entities.Order.list('-date'),
   });
+
+  // Filter orders by time range
+  const getDateCutoff = () => {
+    const now = new Date();
+    switch (timeRange) {
+      case '1w': return new Date(now.setDate(now.getDate() - 7));
+      case '1m': return new Date(now.setMonth(now.getMonth() - 1));
+      case '3m': return new Date(now.setMonth(now.getMonth() - 3));
+      case '6m': return new Date(now.setMonth(now.getMonth() - 6));
+      case 'ytd': return new Date(now.getFullYear(), 0, 1);
+      case '1y': return new Date(now.setFullYear(now.getFullYear() - 1));
+      case '2y': return new Date(now.setFullYear(now.getFullYear() - 2));
+      case '3y': return new Date(now.setFullYear(now.getFullYear() - 3));
+      case '5y': return new Date(now.setFullYear(now.getFullYear() - 5));
+      default: return new Date(0);
+    }
+  };
+
+  const filteredOrders = timeRange === 'all' 
+    ? orders 
+    : orders.filter(o => new Date(o.date) >= getDateCutoff());
 
   // Real-time auto-updates
   useEffect(() => {
@@ -235,7 +258,7 @@ export default function Investments() {
   return (
     <div className="space-y-6">
       <PageHeader title="Investments" subtitle={`${holdings.length} holdings`}>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Select value={displayCurrency} onValueChange={setDisplayCurrency}>
             <SelectTrigger className="w-24 h-9">
               <SelectValue />
@@ -262,6 +285,21 @@ export default function Investments() {
           </Button>
         </div>
       </PageHeader>
+
+      <Tabs value={timeRange} onValueChange={setTimeRange} className="w-full">
+        <TabsList className="grid grid-cols-5 lg:grid-cols-10 w-full">
+          <TabsTrigger value="1w" className="text-xs">1W</TabsTrigger>
+          <TabsTrigger value="1m" className="text-xs">1M</TabsTrigger>
+          <TabsTrigger value="3m" className="text-xs">3M</TabsTrigger>
+          <TabsTrigger value="6m" className="text-xs">6M</TabsTrigger>
+          <TabsTrigger value="ytd" className="text-xs">YTD</TabsTrigger>
+          <TabsTrigger value="1y" className="text-xs">1Y</TabsTrigger>
+          <TabsTrigger value="2y" className="text-xs">2Y</TabsTrigger>
+          <TabsTrigger value="3y" className="text-xs">3Y</TabsTrigger>
+          <TabsTrigger value="5y" className="text-xs">5Y</TabsTrigger>
+          <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <AnimatePresence>
         {showOrderForm && (

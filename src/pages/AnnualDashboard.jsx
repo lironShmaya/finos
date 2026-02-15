@@ -28,6 +28,16 @@ export default function AnnualDashboard() {
     queryFn: () => base44.entities.Category.list(),
   });
 
+  const { data: holdings = [] } = useQuery({
+    queryKey: ['holdings'],
+    queryFn: () => base44.entities.Holding.list(),
+  });
+
+  const { data: orders = [] } = useQuery({
+    queryKey: ['orders'],
+    queryFn: () => base44.entities.Order.list('-date'),
+  });
+
   // Filter transactions for selected year
   const yearTransactions = transactions.filter(t => {
     const year = new Date(t.date).getFullYear();
@@ -87,6 +97,46 @@ export default function AnnualDashboard() {
   const maxExpenseMonth = monthlyChartData.reduce((max, m) => m.expense > max.expense ? m : max, { expense: 0, month: 'N/A' });
   const minExpenseMonth = monthlyChartData.filter(m => m.expense > 0).reduce((min, m) => m.expense < min.expense ? m : min, { expense: Infinity, month: 'N/A' });
 
+  // Calculate Bills Summary
+  const yearBills = bills.reduce((total, bill) => {
+    if (bill.is_active) {
+      const frequency = bill.frequency || 'monthly';
+      const multiplier = {
+        weekly: 52,
+        biweekly: 26,
+        monthly: 12,
+        quarterly: 4,
+        annually: 1
+      }[frequency] || 12;
+      return total + (bill.amount * multiplier);
+    }
+    return total;
+  }, 0);
+
+  // Calculate debt paid from transactions
+  const debtCategories = categories.filter(c => c.type === 'debt').map(c => c.id);
+  const debtPaid = yearTransactions
+    .filter(t => t.type === 'expense' && debtCategories.includes(t.category_id))
+    .reduce((s, t) => s + Math.abs(t.amount), 0);
+
+  // Investment data for selected year
+  const yearOrders = orders.filter(o => {
+    const year = new Date(o.date).getFullYear();
+    return year === selectedYear;
+  });
+
+  const totalInvested = yearOrders
+    .filter(o => o.order_type === 'buy')
+    .reduce((s, o) => s + (o.quantity * o.price), 0);
+
+  const totalDivested = yearOrders
+    .filter(o => o.order_type === 'sell')
+    .reduce((s, o) => s + (o.quantity * o.price), 0);
+
+  const totalPortfolioValue = holdings.reduce((s, h) => s + (h.market_value || h.quantity * h.current_price || 0), 0);
+  const totalPortfolioCost = holdings.reduce((s, h) => s + (h.quantity * h.avg_cost || 0), 0);
+  const totalPortfolioPL = totalPortfolioValue - totalPortfolioCost;
+
   return (
     <div className="space-y-6">
       <PageHeader title={`Annual Dashboard ${selectedYear}`} subtitle="Yearly financial overview">
@@ -104,8 +154,8 @@ export default function AnnualDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard title="Annual Total Income" value={formatCurrency(totalIncome, 'USD')} icon={TrendingUp} />
         <StatCard title="Annual Total Expenses" value={formatCurrency(totalExpenses, 'USD')} icon={TrendingDown} />
-        <StatCard title="Annual Total Bills" value={formatCurrency(0, 'USD')} icon={Receipt} />
-        <StatCard title="Total Debt Paid" value={formatCurrency(0, 'USD')} icon={DollarSign} />
+        <StatCard title="Annual Total Bills" value={formatCurrency(yearBills, 'USD')} icon={Receipt} />
+        <StatCard title="Total Debt Paid" value={formatCurrency(debtPaid, 'USD')} icon={DollarSign} />
         <StatCard title="Annual Savings" value={formatCurrency(totalSavings, 'USD')} icon={Target} />
       </div>
 
@@ -219,6 +269,65 @@ export default function AnnualDashboard() {
                 </Pie>
                 <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #EC4899' }} />
               </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Investment Summary */}
+      <div className="rounded-2xl border-2 border-blue-500 bg-gradient-to-br from-blue-950 to-gray-900 p-6">
+        <h2 className="text-2xl font-bold text-blue-400 mb-6 text-center">INVESTMENT SUMMARY</h2>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gray-800/50 rounded-xl p-4 border border-blue-500/30">
+            <p className="text-xs text-blue-400 uppercase mb-2">Total Invested This Year</p>
+            <p className="text-2xl font-bold text-blue-400">{formatCurrency(totalInvested, 'USD')}</p>
+          </div>
+          <div className="bg-gray-800/50 rounded-xl p-4 border border-blue-500/30">
+            <p className="text-xs text-blue-400 uppercase mb-2">Total Divested This Year</p>
+            <p className="text-2xl font-bold text-blue-400">{formatCurrency(totalDivested, 'USD')}</p>
+          </div>
+          <div className="bg-gray-800/50 rounded-xl p-4 border border-blue-500/30">
+            <p className="text-xs text-blue-400 uppercase mb-2">Current Portfolio Value</p>
+            <p className="text-2xl font-bold text-blue-400">{formatCurrency(totalPortfolioValue, 'USD')}</p>
+          </div>
+          <div className="bg-gray-800/50 rounded-xl p-4 border border-blue-500/30">
+            <p className="text-xs text-blue-400 uppercase mb-2">Total Portfolio P/L</p>
+            <p className={`text-2xl font-bold ${totalPortfolioPL >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              {totalPortfolioPL >= 0 ? '+' : ''}{formatCurrency(totalPortfolioPL, 'USD')}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-gray-800/30 rounded-xl p-4 border border-blue-500/30">
+            <h3 className="text-sm font-semibold text-blue-400 mb-4 text-center">YEARLY ORDERS</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={[
+                { type: 'Invested', value: totalInvested },
+                { type: 'Divested', value: totalDivested }
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="type" stroke="#3B82F6" fontSize={12} />
+                <YAxis stroke="#3B82F6" fontSize={12} />
+                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #3B82F6' }} />
+                <Bar dataKey="value" fill="#3B82F6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="bg-gray-800/30 rounded-xl p-4 border border-blue-500/30">
+            <h3 className="text-sm font-semibold text-blue-400 mb-4 text-center">PORTFOLIO PERFORMANCE</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={[
+                { metric: 'Cost', value: totalPortfolioCost },
+                { metric: 'Value', value: totalPortfolioValue }
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="metric" stroke="#3B82F6" fontSize={12} />
+                <YAxis stroke="#3B82F6" fontSize={12} />
+                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #3B82F6' }} />
+                <Bar dataKey="value" fill="#3B82F6" />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
