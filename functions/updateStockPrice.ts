@@ -9,7 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { symbol, holdingId } = await req.json();
+    const { symbol, holding_id } = await req.json();
+    const holdingId = holding_id;
     
     if (!symbol) {
       return Response.json({ error: 'Symbol required' }, { status: 400 });

@@ -12,7 +12,7 @@ export default function StatCard({ title, value, subtitle, icon: Icon, trend, tr
       transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className={`relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 h-full flex flex-col ${className}`}
       style={{
         boxShadow: isHovered 
           ? '0 20px 40px -12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(37, 99, 235, 0.1)' 
@@ -24,39 +24,43 @@ export default function StatCard({ title, value, subtitle, icon: Icon, trend, tr
         animate={{ opacity: isHovered ? 1 : 0 }}
         transition={{ duration: 0.3 }}
       />
-      <div className="relative flex items-start justify-between">
-        <div className="space-y-2">
-          <motion.p 
-            className="text-xs font-medium uppercase tracking-widest text-gray-400"
-            animate={{ x: isHovered ? 2 : 0 }}
-            transition={{ duration: 0.2 }}
-          >{title}</motion.p>
-          <motion.p 
-            className="text-2xl font-bold tracking-tight bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-clip-text text-transparent"
-            animate={{ scale: isHovered ? 1.03 : 1 }}
-            transition={{ duration: 0.2 }}
-          >{value}</motion.p>
-          {subtitle && (
+      <div className="relative flex items-start justify-between flex-1">
+        <div className="flex flex-col justify-between h-full flex-1 min-h-[100px]">
+          <div>
             <motion.p 
-              className="text-sm text-gray-500"
-              initial={{ opacity: 0.7 }}
-              animate={{ opacity: isHovered ? 1 : 0.7 }}
-            >{subtitle}</motion.p>
-          )}
-          {trend && (
-            <motion.div 
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${trendUp ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-orange-700'}`}
-            >
-              {trendUp ? '↑' : '↓'} {trend}
-            </motion.div>
-          )}
+              className="text-xs font-medium uppercase tracking-widest text-gray-400 mb-2"
+              animate={{ x: isHovered ? 2 : 0 }}
+              transition={{ duration: 0.2 }}
+            >{title}</motion.p>
+            <motion.p 
+              className="text-2xl font-bold tracking-tight bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-clip-text text-transparent"
+              animate={{ scale: isHovered ? 1.03 : 1 }}
+              transition={{ duration: 0.2 }}
+            >{value}</motion.p>
+          </div>
+          <div className="mt-2">
+            {subtitle && (
+              <motion.p 
+                className="text-sm font-medium"
+                initial={{ opacity: 0.7 }}
+                animate={{ opacity: isHovered ? 1 : 0.7 }}
+              >{subtitle}</motion.p>
+            )}
+            {trend && (
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${trendUp ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-orange-700'}`}
+              >
+                {trendUp ? '↑' : '↓'} {trend}
+              </motion.div>
+            )}
+          </div>
         </div>
         {Icon && (
           <motion.div 
-            className="rounded-xl bg-gradient-to-br from-cyan-50 to-blue-50 p-3"
+            className="rounded-xl bg-gradient-to-br from-cyan-50 to-blue-50 p-3 flex-shrink-0 ml-4"
             animate={{ 
               scale: isHovered ? 1.1 : 1,
               rotate: isHovered ? 5 : 0 
