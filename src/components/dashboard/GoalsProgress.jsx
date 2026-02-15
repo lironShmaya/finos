@@ -25,7 +25,7 @@ export default function GoalsProgress({ goals }) {
         <Target className="h-4 w-4 text-purple-500" />
         <h3 className="text-sm font-semibold text-gray-900">Goals Progress</h3>
       </div>
-      <div className="space-y-4">
+      <div className="flex-1 overflow-y-auto space-y-4">
         {goals.slice(0, 5).map((goal, idx) => {
           const pct = goal.target_amount > 0 ? Math.min(100, ((goal.current_amount || 0) / goal.target_amount) * 100) : 0;
           return (

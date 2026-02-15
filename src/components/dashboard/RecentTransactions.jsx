@@ -36,7 +36,7 @@ export default function RecentTransactions({ transactions }) {
       className="rounded-2xl border border-gray-100 bg-white p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
     >
       <h3 className="text-sm font-semibold text-gray-900 mb-4">Recent Transactions</h3>
-      <div className="space-y-1">
+      <div className="flex-1 overflow-y-auto space-y-1">
         {recent.map((t, idx) => {
           const Icon = typeIcons[t.type] || ArrowDownRight;
           const bg = typeBg[t.type] || typeBg.expense;

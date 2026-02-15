@@ -33,7 +33,8 @@ export default function NetWorthTrend({ accounts, currency = 'USD' }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.6, duration: 0.3 }}
       >{formatCurrency(netWorth, currency)}</motion.p>
-      <ResponsiveContainer width="100%" height={180}>
+      <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id="nwGrad" x1="0" y1="0" x2="0" y2="1">
@@ -67,6 +68,7 @@ export default function NetWorthTrend({ accounts, currency = 'USD' }) {
           </defs>
         </AreaChart>
       </ResponsiveContainer>
+      </div>
     </motion.div>
   );
 }
