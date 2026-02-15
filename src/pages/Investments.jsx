@@ -271,7 +271,7 @@ export default function Investments() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard 
           title="Total Portfolio Value" 
           value={formatCurrency(totalValue, displayCurrency)} 
@@ -330,28 +330,22 @@ export default function Investments() {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="scale-90 origin-top-left">
-          <StatCard 
-            title="Cash" 
-            value={formatCurrency(totalCash, displayCurrency)} 
-            icon={BarChart3} 
-          />
-        </div>
-        <div className="scale-90 origin-top">
-          <StatCard 
-            title="% Cash" 
-            value={`${cashPct.toFixed(2)}%`} 
-            icon={BarChart3} 
-          />
-        </div>
-        <div className="scale-90 origin-top-right">
-          <StatCard 
-            title="USD/ILS" 
-            value="3.590" 
-            icon={BarChart3} 
-          />
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <StatCard 
+          title="Cash" 
+          value={formatCurrency(totalCash, displayCurrency)} 
+          icon={BarChart3} 
+        />
+        <StatCard 
+          title="% Cash" 
+          value={`${cashPct.toFixed(2)}%`} 
+          icon={BarChart3} 
+        />
+        <StatCard 
+          title="USD/ILS" 
+          value="3.590" 
+          icon={BarChart3} 
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
