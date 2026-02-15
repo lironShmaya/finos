@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { formatCurrency } from '../shared/CurrencyFormatter';
 import { format } from 'date-fns';
 import { ArrowUpRight, ArrowDownRight, ArrowRightLeft } from 'lucide-react';

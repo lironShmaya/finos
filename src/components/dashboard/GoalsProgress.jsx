@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { formatCurrency } from '../shared/CurrencyFormatter';
 import { Target } from 'lucide-react';

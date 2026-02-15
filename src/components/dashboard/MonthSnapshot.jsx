@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import StatCard from '../shared/StatCard';
 import { formatCurrency } from '../shared/CurrencyFormatter';
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react';
