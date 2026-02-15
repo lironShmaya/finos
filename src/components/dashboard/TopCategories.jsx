@@ -33,16 +33,16 @@ export default function TopCategories({ transactions, budgets, currency = 'USD' 
 
   if (data.length === 0) {
     return (
-      <div className="rounded-2xl border border-gray-100 bg-white p-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">Top Categories</h3>
-        <p className="text-sm text-gray-400 text-center py-8">No expense data this month</p>
+      <div className="rounded-2xl border border-[#1C7293]/20 bg-[#0D1B2A] p-6 backdrop-blur-xl">
+        <h3 className="text-sm font-semibold text-[#F4F7FB] mb-4">Top Categories</h3>
+        <p className="text-sm text-[#A6E1FA]/40 text-center py-8">No expense data this month</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6">
-      <h3 className="text-sm font-semibold text-gray-900 mb-4">Top Categories This Month</h3>
+    <div className="rounded-2xl border border-[#1C7293]/20 bg-[#0D1B2A] p-6 backdrop-blur-xl hover:border-[#1C7293]/40 transition-all duration-200">
+      <h3 className="text-sm font-semibold text-[#F4F7FB] mb-4">Top Categories This Month</h3>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={data} layout="vertical" margin={{ left: 0, right: 16 }}>
           <XAxis type="number" hide />

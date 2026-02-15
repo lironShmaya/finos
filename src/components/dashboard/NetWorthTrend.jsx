@@ -16,12 +16,12 @@ export default function NetWorthTrend({ accounts, currency = 'USD' }) {
   if (data.length > 0) data[data.length - 1].value = Math.round(netWorth);
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6">
+    <div className="rounded-2xl border border-[#1C7293]/20 bg-[#0D1B2A] p-6 backdrop-blur-xl hover:border-[#1C7293]/40 transition-all duration-200">
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-sm font-semibold text-gray-900">Net Worth</h3>
-        <span className="text-xs text-gray-400">Last 8 months</span>
+        <h3 className="text-sm font-semibold text-[#F4F7FB]">Net Worth</h3>
+        <span className="text-xs text-[#A6E1FA]/60">Last 8 months</span>
       </div>
-      <p className="text-2xl font-bold text-gray-900 mb-4">{formatCurrency(netWorth, currency)}</p>
+      <p className="text-2xl font-bold text-[#A6E1FA] font-mono mb-4">{formatCurrency(netWorth, currency)}</p>
       <ResponsiveContainer width="100%" height={180}>
         <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
           <defs>
