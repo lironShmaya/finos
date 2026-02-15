@@ -113,9 +113,7 @@ export default function Budgets() {
       borderColor: 'border-emerald-200',
       bgColor: 'bg-emerald-50',
       textColor: 'text-emerald-700',
-      budgets: budgets.filter(b => 
-        ['Liren\'s Salary', 'Tehila\'s Salary'].includes(b.category_name)
-      )
+      budgets: budgets.filter(b => b.section === 'income')
     },
     {
       title: 'EXPENSES',
@@ -124,11 +122,7 @@ export default function Budgets() {
       borderColor: 'border-rose-200',
       bgColor: 'bg-rose-50',
       textColor: 'text-rose-700',
-      budgets: budgets.filter(b => 
-        ['Groceries', 'Netflix', 'Patreon', 'Haircuts', 'Food outside', 'Car Charging', 
-         'Household', 'Misc', 'Clothes', 'Entertainment', 'TradingView', 'Gas', 
-         'ChatGPT', 'Mikveh', 'Nails', 'Spotify', 'Parking'].includes(b.category_name)
-      )
+      budgets: budgets.filter(b => b.section === 'expenses')
     },
     {
       title: 'BILLS',
@@ -137,10 +131,16 @@ export default function Budgets() {
       borderColor: 'border-blue-200',
       bgColor: 'bg-blue-50',
       textColor: 'text-blue-700',
-      budgets: budgets.filter(b => 
-        ['Rent', 'Electricity', 'Water', 'Internet', 'Cellular', 'Car 1 Lease', 
-         'Car 2 Lease', 'Car 1 Insurance', 'Car 2 Insurance', 'Daycare'].includes(b.category_name)
-      )
+      budgets: budgets.filter(b => b.section === 'bills')
+    },
+    {
+      title: 'SUBSCRIPTIONS',
+      icon: Receipt,
+      color: 'amber',
+      borderColor: 'border-amber-200',
+      bgColor: 'bg-amber-50',
+      textColor: 'text-amber-700',
+      budgets: budgets.filter(b => b.section === 'subscriptions')
     },
     {
       title: 'SAVINGS',
@@ -149,9 +149,7 @@ export default function Budgets() {
       borderColor: 'border-purple-200',
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-700',
-      budgets: budgets.filter(b => 
-        ['02s Savings', 'COF ESPP', 'Investing', 'Tehila\'s Pension'].includes(b.category_name)
-      )
+      budgets: budgets.filter(b => b.section === 'savings')
     }
   ];
 
@@ -190,7 +188,12 @@ export default function Budgets() {
                   className="group"
                 >
                   <td className="px-4 py-3">
-                    <span className="text-sm font-medium text-gray-900">{b.category_name}</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-900">{b.item_name || b.category_name}</span>
+                      {b.category_name && (
+                        <span className="text-xs text-gray-400">{b.category_name}</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <span className="text-sm text-gray-700">{formatCurrency(b.amount)}</span>
@@ -289,9 +292,26 @@ export default function Budgets() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label>Category</Label>
+                  <Label>Item Name</Label>
+                  <Input name="item_name" defaultValue={editing?.item_name || ''} required placeholder="e.g., Groceries, Spotify" />
+                </div>
+                <div>
+                  <Label>Section</Label>
+                  <Select name="section" defaultValue={editing?.section || 'expenses'}>
+                    <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="income">Income</SelectItem>
+                      <SelectItem value="expenses">Expenses</SelectItem>
+                      <SelectItem value="bills">Bills</SelectItem>
+                      <SelectItem value="subscriptions">Subscriptions</SelectItem>
+                      <SelectItem value="savings">Savings</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Category (for transaction matching)</Label>
                   <Select name="category_id" defaultValue={editing?.category_id || ''}>
-                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select category (optional)" /></SelectTrigger>
                     <SelectContent>
                       {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                     </SelectContent>
