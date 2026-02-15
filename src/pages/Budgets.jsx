@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PageHeader from '../components/shared/PageHeader';
@@ -31,6 +31,22 @@ export default function Budgets() {
     queryKey: ['transactions'],
     queryFn: () => base44.entities.Transaction.list('-date', 500),
   });
+
+  // Real-time auto-updates
+  useEffect(() => {
+    const unsubscribeBudget = base44.entities.Budget.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+    });
+
+    const unsubscribeTx = base44.entities.Transaction.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    });
+
+    return () => {
+      unsubscribeBudget();
+      unsubscribeTx();
+    };
+  }, [queryClient]);
 
   const createMut = useMutation({
     mutationFn: (d) => base44.entities.Budget.create(d),
@@ -131,40 +147,71 @@ export default function Budgets() {
           onAction={() => setShowForm(true)}
         />
       ) : (
-        <div className="grid gap-4">
-          {budgets.map(b => {
-            const spent = getSpent(b.category_id, b.category_name);
-            const pct = b.amount > 0 ? Math.min(100, (spent / b.amount) * 100) : 0;
-            const isOver = spent > b.amount;
-            return (
-              <div key={b.id} className="rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-sm transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-900">{b.category_name || 'Unknown'}</h4>
-                    <span className="text-xs text-gray-400">{b.period}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm font-bold ${isOver ? 'text-red-500' : 'text-gray-900'}`}>
-                      {formatCurrency(spent)} / {formatCurrency(b.amount)}
-                    </span>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(b); setShowForm(true); }}>
-                      <Pencil className="h-3.5 w-3.5 text-gray-400" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteMut.mutate(b.id)}>
-                      <Trash2 className="h-3.5 w-3.5 text-gray-400" />
-                    </Button>
-                  </div>
-                </div>
-                <Progress value={pct} className={`h-2 ${isOver ? '[&>div]:bg-red-500' : ''}`} />
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-gray-400">{pct.toFixed(0)}% used</span>
-                  <span className={`text-xs font-medium ${isOver ? 'text-red-500' : 'text-emerald-600'}`}>
-                    {isOver ? `Over by ${formatCurrency(spent - b.amount)}` : `${formatCurrency(b.amount - spent)} left`}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+        <div className="rounded-2xl border border-gray-100 bg-white overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50/50 border-b border-gray-100">
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-gray-400 px-6 py-4">Category</th>
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-gray-400 px-6 py-4">Period</th>
+                  <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-6 py-4">Budget</th>
+                  <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-6 py-4">Spent</th>
+                  <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-6 py-4">Remaining</th>
+                  <th className="text-center text-xs font-medium uppercase tracking-wider text-gray-400 px-6 py-4">Progress</th>
+                  <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-6 py-4 w-20"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {budgets.map(b => {
+                  const spent = getSpent(b.category_id, b.category_name);
+                  const pct = b.amount > 0 ? Math.min(100, (spent / b.amount) * 100) : 0;
+                  const isOver = spent > b.amount;
+                  const remaining = b.amount - spent;
+                  return (
+                    <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-5">
+                        <span className="text-sm font-semibold text-gray-900">{b.category_name || 'Unknown'}</span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="text-sm text-gray-600 capitalize">{b.period}</span>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <span className="text-sm font-medium text-gray-900">{formatCurrency(b.amount)}</span>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <span className={`text-sm font-semibold ${isOver ? 'text-red-600' : 'text-gray-900'}`}>
+                          {formatCurrency(spent)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <span className={`text-sm font-semibold ${isOver ? 'text-red-600' : 'text-emerald-600'}`}>
+                          {isOver ? `-${formatCurrency(Math.abs(remaining))}` : formatCurrency(remaining)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <Progress value={pct} className={`h-2 flex-1 ${isOver ? '[&>div]:bg-red-500' : ''}`} />
+                          <span className={`text-xs font-medium ${isOver ? 'text-red-600' : 'text-gray-600'} min-w-[40px] text-right`}>
+                            {pct.toFixed(0)}%
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-1 justify-end">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(b); setShowForm(true); }}>
+                            <Pencil className="h-3.5 w-3.5 text-gray-400" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteMut.mutate(b.id)}>
+                            <Trash2 className="h-3.5 w-3.5 text-gray-400" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
