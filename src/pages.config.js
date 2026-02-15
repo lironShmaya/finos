@@ -47,7 +47,9 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AnnualDashboard from './pages/AnnualDashboard';
 import Bills from './pages/Bills';
+import Budgets from './pages/Budgets';
 import Calculators from './pages/Calculators';
 import Dashboard from './pages/Dashboard';
 import Goals from './pages/Goals';
@@ -56,13 +58,13 @@ import NetWorth from './pages/NetWorth';
 import Pensions from './pages/Pensions';
 import Settings from './pages/Settings';
 import Transactions from './pages/Transactions';
-import AnnualDashboard from './pages/AnnualDashboard';
-import Budgets from './pages/Budgets';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AnnualDashboard": AnnualDashboard,
     "Bills": Bills,
+    "Budgets": Budgets,
     "Calculators": Calculators,
     "Dashboard": Dashboard,
     "Goals": Goals,
@@ -71,8 +73,6 @@ export const PAGES = {
     "Pensions": Pensions,
     "Settings": Settings,
     "Transactions": Transactions,
-    "AnnualDashboard": AnnualDashboard,
-    "Budgets": Budgets,
 }
 
 export const pagesConfig = {

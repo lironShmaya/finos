@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, PieChart, Pencil, Trash2, ChevronLeft, ChevronRight, DollarSign, TrendingDown, Receipt, PiggyBank } from 'lucide-react';
+import { Plus, PieChart, Pencil, Trash2, ChevronLeft, ChevronRight, DollarSign, TrendingDown, Receipt, PiggyBank, GripVertical } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 export default function Budgets() {
   const [showForm, setShowForm] = useState(false);
@@ -115,7 +116,7 @@ export default function Budgets() {
       borderColor: 'border-emerald-200',
       bgColor: 'bg-emerald-50',
       textColor: 'text-emerald-700',
-      budgets: budgets.filter(b => b.section === 'income')
+      budgets: budgets.filter(b => b.section === 'income').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     },
     {
       title: 'EXPENSES',
@@ -124,7 +125,7 @@ export default function Budgets() {
       borderColor: 'border-rose-200',
       bgColor: 'bg-rose-50',
       textColor: 'text-rose-700',
-      budgets: budgets.filter(b => b.section === 'expenses')
+      budgets: budgets.filter(b => b.section === 'expenses').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     },
     {
       title: 'BILLS',
@@ -133,7 +134,7 @@ export default function Budgets() {
       borderColor: 'border-blue-200',
       bgColor: 'bg-blue-50',
       textColor: 'text-blue-700',
-      budgets: budgets.filter(b => b.section === 'bills')
+      budgets: budgets.filter(b => b.section === 'bills').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     },
     {
       title: 'SUBSCRIPTIONS',
@@ -142,7 +143,7 @@ export default function Budgets() {
       borderColor: 'border-amber-200',
       bgColor: 'bg-amber-50',
       textColor: 'text-amber-700',
-      budgets: budgets.filter(b => b.section === 'subscriptions')
+      budgets: budgets.filter(b => b.section === 'subscriptions').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     },
     {
       title: 'SAVINGS',
@@ -151,9 +152,24 @@ export default function Budgets() {
       borderColor: 'border-purple-200',
       bgColor: 'bg-purple-50',
       textColor: 'text-purple-700',
-      budgets: budgets.filter(b => b.section === 'savings')
+      budgets: budgets.filter(b => b.section === 'savings').sort((a, b) => (a.ordering || 0) - (b.ordering || 0))
     }
   ];
+
+  const handleDragEnd = async (result, sectionBudgets) => {
+    if (!result.destination) return;
+    
+    const items = Array.from(sectionBudgets);
+    const [reordered] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reordered);
+    
+    // Update ordering for all items
+    for (let i = 0; i < items.length; i++) {
+      await base44.entities.Budget.update(items[i].id, { ordering: i });
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['budgets'] });
+  };
 
   const renderBudgetTable = (sectionBudgets, sectionColor) => {
     if (sectionBudgets.length === 0) return null;
@@ -163,91 +179,111 @@ export default function Budgets() {
     
     return (
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3">Category</th>
-              <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3">Budget</th>
-              <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3">Actual</th>
-              <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3">Left</th>
-              <th className="text-center text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3 w-32">Progress</th>
-              <th className="w-20"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {sectionBudgets.map((b, idx) => {
-              const spent = getSpent(b.category_id, b.category_name);
-              const pct = b.amount > 0 ? Math.min(100, (spent / b.amount) * 100) : 0;
-              const isOver = spent > b.amount;
-              const remaining = b.amount - spent;
-              return (
-                <motion.tr 
-                  key={b.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.03 }}
-                  whileHover={{ backgroundColor: 'rgba(249, 250, 251, 0.5)' }}
-                  className="group"
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-900">{b.item_name || b.category_name}</span>
-                      {b.category_name && (
-                        <span className="text-xs text-gray-400">{b.category_name}</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="text-sm text-gray-700">{formatCurrency(b.amount)}</span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-semibold ${isOver ? 'text-red-600' : 'text-gray-900'}`}>
-                      {formatCurrency(spent)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-bold ${isOver ? 'text-red-600' : 'text-emerald-600'}`}>
-                      {formatCurrency(Math.abs(remaining))}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <Progress value={pct} className={`h-1.5 flex-1 ${isOver ? '[&>div]:bg-red-500' : ''}`} />
-                      <span className={`text-xs font-medium ${isOver ? 'text-red-600' : 'text-gray-500'} min-w-[35px] text-right`}>
-                        {pct.toFixed(0)}%
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditing(b); setShowForm(true); }}>
-                          <Pencil className="h-3 w-3 text-gray-400" />
-                        </Button>
-                      </motion.div>
-                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => deleteMut.mutate(b.id)}>
-                          <Trash2 className="h-3 w-3 text-gray-400" />
-                        </Button>
-                      </motion.div>
-                    </div>
-                  </td>
-                </motion.tr>
-              );
-            })}
-            <tr className="bg-gray-50/50 font-semibold">
-              <td className="px-4 py-3 text-sm text-gray-900">TOTAL</td>
-              <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(totalBudget)}</td>
-              <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(totalSpent)}</td>
-              <td className={`px-4 py-3 text-right text-sm font-bold ${
-                totalBudget - totalSpent < 0 ? 'text-red-600' : 'text-emerald-600'
-              }`}>
-                {formatCurrency(Math.abs(totalBudget - totalSpent))}
-              </td>
-              <td colSpan="2"></td>
-            </tr>
-          </tbody>
-        </table>
+        <DragDropContext onDragEnd={(result) => handleDragEnd(result, sectionBudgets)}>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="w-8"></th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3">Category</th>
+                <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3">Budget</th>
+                <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3">Actual</th>
+                <th className="text-right text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3">Left</th>
+                <th className="text-center text-xs font-medium uppercase tracking-wider text-gray-400 px-4 py-3 w-32">Progress</th>
+                <th className="w-20"></th>
+              </tr>
+            </thead>
+            <Droppable droppableId="budget-table">
+              {(provided) => (
+                <tbody className="divide-y divide-gray-100" {...provided.droppableProps} ref={provided.innerRef}>
+                  {sectionBudgets.map((b, idx) => {
+                    const spent = getSpent(b.category_id, b.category_name);
+                    const pct = b.amount > 0 ? Math.min(100, (spent / b.amount) * 100) : 0;
+                    const isOver = spent > b.amount;
+                    const remaining = b.amount - spent;
+                    return (
+                      <Draggable key={b.id} draggableId={b.id} index={idx}>
+                        {(provided, snapshot) => (
+                          <motion.tr 
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.03 }}
+                            className={`group ${snapshot.isDragging ? 'bg-gray-50' : ''}`}
+                            style={{
+                              ...provided.draggableProps.style,
+                              backgroundColor: snapshot.isDragging ? 'rgb(249, 250, 251)' : undefined,
+                            }}
+                          >
+                            <td className="px-2" {...provided.dragHandleProps}>
+                              <GripVertical className="h-4 w-4 text-gray-300 cursor-grab active:cursor-grabbing" />
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-gray-900">{b.item_name || b.category_name}</span>
+                                {b.category_name && (
+                                  <span className="text-xs text-gray-400">{b.category_name}</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className="text-sm text-gray-700">{formatCurrency(b.amount)}</span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className={`text-sm font-semibold ${isOver ? 'text-red-600' : 'text-gray-900'}`}>
+                                {formatCurrency(spent)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className={`text-sm font-bold ${isOver ? 'text-red-600' : 'text-emerald-600'}`}>
+                                {formatCurrency(Math.abs(remaining))}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                <Progress value={pct} className={`h-1.5 flex-1 ${isOver ? '[&>div]:bg-red-500' : ''}`} />
+                                <span className={`text-xs font-medium ${isOver ? 'text-red-600' : 'text-gray-500'} min-w-[35px] text-right`}>
+                                  {pct.toFixed(0)}%
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditing(b); setShowForm(true); }}>
+                                    <Pencil className="h-3 w-3 text-gray-400" />
+                                  </Button>
+                                </motion.div>
+                                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => deleteMut.mutate(b.id)}>
+                                    <Trash2 className="h-3 w-3 text-gray-400" />
+                                  </Button>
+                                </motion.div>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        )}
+                      </Draggable>
+                    );
+                  })}
+                  {provided.placeholder}
+                  <tr className="bg-gray-50/50 font-semibold">
+                    <td></td>
+                    <td className="px-4 py-3 text-sm text-gray-900">TOTAL</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(totalBudget)}</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(totalSpent)}</td>
+                    <td className={`px-4 py-3 text-right text-sm font-bold ${
+                      totalBudget - totalSpent < 0 ? 'text-red-600' : 'text-emerald-600'
+                    }`}>
+                      {formatCurrency(Math.abs(totalBudget - totalSpent))}
+                    </td>
+                    <td colSpan="2"></td>
+                  </tr>
+                </tbody>
+              )}
+            </Droppable>
+          </table>
+        </DragDropContext>
       </div>
     );
   };
