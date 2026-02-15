@@ -92,12 +92,13 @@ export default function Budgets() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const cat = categories.find(c => c.id === fd.get('category_id'));
+    const catId = fd.get('category_id');
+    const cat = catId ? categories.find(c => c.id === catId) : null;
     const data = {
       item_name: fd.get('item_name'),
       section: cat?.section || fd.get('section'),
-      category_id: fd.get('category_id') || null,
-      category_name: cat?.name || '',
+      category_id: catId || null,
+      category_name: cat?.name || fd.get('item_name'),
       amount: parseFloat(fd.get('amount')),
       period: fd.get('period') || 'monthly',
     };
