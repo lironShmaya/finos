@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PageHeader from '../components/shared/PageHeader';
@@ -26,6 +26,14 @@ export default function Investments() {
     queryKey: ['holdings'],
     queryFn: () => base44.entities.Holding.list(),
   });
+
+  // Real-time auto-updates
+  useEffect(() => {
+    const unsubscribe = base44.entities.Holding.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['holdings'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
 
   const createMut = useMutation({
     mutationFn: (d) => base44.entities.Holding.create(d),
