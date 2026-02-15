@@ -330,21 +330,24 @@ export default function Investments() {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="flex gap-3 max-w-3xl">
         <StatCard 
           title="Cash" 
           value={formatCurrency(totalCash, displayCurrency)} 
           icon={BarChart3} 
+          className="flex-1"
         />
         <StatCard 
           title="% Cash" 
           value={`${cashPct.toFixed(2)}%`} 
           icon={BarChart3} 
+          className="flex-1"
         />
         <StatCard 
           title="USD/ILS" 
           value="3.590" 
           icon={BarChart3} 
+          className="flex-1"
         />
       </div>
 
