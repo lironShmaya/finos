@@ -10,25 +10,12 @@ export default function BudgetBreakdown({ budgets, transactions }) {
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
 
-  // Group budgets by type
-  const incomeBudgets = budgets.filter(b => 
-    ['Liren\'s Salary', 'Tehila\'s Salary'].includes(b.category_name)
-  );
-  
-  const expensesBudgets = budgets.filter(b => 
-    ['Groceries', 'Netflix', 'Patreon', 'Haircuts', 'Food outside', 'Car Charging', 
-     'Household', 'Misc', 'Clothes', 'Entertainment', 'TradingView', 'Gas', 
-     'ChatGPT', 'Mikveh', 'Nails', 'Spotify', 'Parking'].includes(b.category_name)
-  );
-  
-  const billsBudgets = budgets.filter(b => 
-    ['Rent', 'Electricity', 'Water', 'Internet', 'Cellular', 'Car 1 Lease', 
-     'Car 2 Lease', 'Car 1 Insurance', 'Car 2 Insurance', 'Daycare'].includes(b.category_name)
-  );
-  
-  const savingsBudgets = budgets.filter(b => 
-    ['02s Savings', 'COF ESPP', 'Investing', 'Tehila\'s Pension'].includes(b.category_name)
-  );
+  // Group budgets by section
+  const incomeBudgets = budgets.filter(b => b.section === 'income');
+  const expensesBudgets = budgets.filter(b => b.section === 'expenses');
+  const billsBudgets = budgets.filter(b => b.section === 'bills');
+  const subscriptionsBudgets = budgets.filter(b => b.section === 'subscriptions');
+  const savingsBudgets = budgets.filter(b => b.section === 'savings');
 
   const getSpent = (categoryName) => {
     return thisMonthTx
@@ -70,6 +57,13 @@ export default function BudgetBreakdown({ budgets, transactions }) {
       title: 'BILLS',
       budgets: billsBudgets,
       color: 'blue',
+      icon: Receipt,
+      isIncome: false
+    },
+    {
+      title: 'SUBSCRIPTIONS',
+      budgets: subscriptionsBudgets,
+      color: 'amber',
       icon: Receipt,
       isIncome: false
     },

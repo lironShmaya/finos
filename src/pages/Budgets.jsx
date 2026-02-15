@@ -93,7 +93,9 @@ export default function Budgets() {
     const fd = new FormData(e.target);
     const cat = categories.find(c => c.id === fd.get('category_id'));
     const data = {
-      category_id: fd.get('category_id'),
+      item_name: fd.get('item_name'),
+      section: fd.get('section'),
+      category_id: fd.get('category_id') || null,
       category_name: cat?.name || '',
       amount: parseFloat(fd.get('amount')),
       period: fd.get('period') || 'monthly',
