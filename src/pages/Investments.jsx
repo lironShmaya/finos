@@ -143,6 +143,7 @@ export default function Investments() {
                       <SelectItem value="mutual_fund">Mutual Fund</SelectItem>
                       <SelectItem value="crypto">Crypto</SelectItem>
                       <SelectItem value="commodities">Commodities</SelectItem>
+                      <SelectItem value="cash">Cash</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
