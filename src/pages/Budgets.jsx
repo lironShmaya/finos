@@ -50,7 +50,7 @@ export default function Budgets() {
       
       // Update budget sections from their categories
       for (const b of allBudgets) {
-        if (b.category_id) {
+        if (b.category_id && b.item_name && b.amount) {
           const cat = allCategories.find(c => c.id === b.category_id);
           if (cat && cat.section && b.section !== cat.section) {
             await base44.entities.Budget.update(b.id, { 
