@@ -181,8 +181,13 @@ export default function Settings() {
                     <div><Label>Name</Label><Input name="name" defaultValue={editingCat?.name || ''} required /></div>
                     <div>
                       <Label>Section</Label>
-                      <Select name="section" defaultValue={editingCat?.section || 'expenses'}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                      <select name="section" defaultValue={editingCat?.section || 'expenses'} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                        <option value="income">Income</option>
+                        <option value="expenses">Expenses</option>
+                        <option value="bills">Bills</option>
+                        <option value="subscriptions">Subscriptions</option>
+                        <option value="savings">Savings</option>
+                      </select>
                         <SelectContent>
                           <SelectItem value="income">Income</SelectItem>
                           <SelectItem value="expenses">Expenses</SelectItem>
