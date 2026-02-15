@@ -47,30 +47,30 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Dashboard from './pages/Dashboard';
-import Transactions from './pages/Transactions';
-import Budgets from './pages/Budgets';
 import Bills from './pages/Bills';
-import NetWorth from './pages/NetWorth';
-import Investments from './pages/Investments';
-import Pensions from './pages/Pensions';
-import Goals from './pages/Goals';
+import Budgets from './pages/Budgets';
 import Calculators from './pages/Calculators';
+import Dashboard from './pages/Dashboard';
+import Goals from './pages/Goals';
+import Investments from './pages/Investments';
+import NetWorth from './pages/NetWorth';
+import Pensions from './pages/Pensions';
 import Settings from './pages/Settings';
+import Transactions from './pages/Transactions';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "Transactions": Transactions,
-    "Budgets": Budgets,
     "Bills": Bills,
-    "NetWorth": NetWorth,
-    "Investments": Investments,
-    "Pensions": Pensions,
-    "Goals": Goals,
+    "Budgets": Budgets,
     "Calculators": Calculators,
+    "Dashboard": Dashboard,
+    "Goals": Goals,
+    "Investments": Investments,
+    "NetWorth": NetWorth,
+    "Pensions": Pensions,
     "Settings": Settings,
+    "Transactions": Transactions,
 }
 
 export const pagesConfig = {

@@ -11,12 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Receipt, Calendar, Pencil, Trash2, CheckCircle } from 'lucide-react';
+import { Plus, Receipt, Calendar, Pencil, Trash2, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, addMonths, addWeeks, addYears, addDays } from 'date-fns';
 
 export default function Bills() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
   const queryClient = useQueryClient();
 
   const { data: bills = [] } = useQuery({
@@ -68,10 +69,39 @@ export default function Bills() {
     return s + amt;
   }, 0);
 
+  const goToPrevMonth = () => {
+    const newDate = new Date(selectedMonth);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setSelectedMonth(newDate);
+  };
+
+  const goToNextMonth = () => {
+    const newDate = new Date(selectedMonth);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setSelectedMonth(newDate);
+  };
+
+  const currentMonthBills = bills.filter(b => {
+    const dueDay = b.due_day || 1;
+    return b.is_active !== false;
+  });
+
   return (
     <div className="space-y-6">
       <PageHeader title="Bills & Subscriptions" subtitle={`${formatCurrency(totalMonthly)}/mo total`}>
-        <Dialog open={showForm} onOpenChange={setShowForm}>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5">
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={goToPrevMonth}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-medium text-gray-900 min-w-[120px] text-center">
+              {selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
+            </span>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={goToNextMonth}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-2" onClick={() => setEditing(null)}>
               <Plus className="h-4 w-4" /> Add Bill
@@ -133,6 +163,7 @@ export default function Bills() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </PageHeader>
 
       {bills.length === 0 ? (
@@ -145,7 +176,7 @@ export default function Bills() {
         />
       ) : (
         <div className="grid gap-3">
-          {bills.map(b => (
+          {currentMonthBills.map(b => (
             <div key={b.id} className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 hover:shadow-sm transition-shadow">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-50">
                 <Receipt className="h-5 w-5 text-gray-400" />

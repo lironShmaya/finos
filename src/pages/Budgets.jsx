@@ -10,11 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, PieChart, Pencil, Trash2 } from 'lucide-react';
+import { Plus, PieChart, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Budgets() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
   const queryClient = useQueryClient();
 
   const { data: budgets = [] } = useQuery({
@@ -63,16 +64,27 @@ export default function Budgets() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['budgets'] }),
   });
 
-  const now = new Date();
   const thisMonthTx = transactions.filter(t => {
     const d = new Date(t.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && t.type === 'expense';
+    return d.getMonth() === selectedMonth.getMonth() && d.getFullYear() === selectedMonth.getFullYear() && t.type === 'expense';
   });
 
   const getSpent = (catId, catName) => {
     return thisMonthTx
       .filter(t => t.category_id === catId || t.category_name === catName)
       .reduce((s, t) => s + Math.abs(t.amount), 0);
+  };
+
+  const goToPrevMonth = () => {
+    const newDate = new Date(selectedMonth);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setSelectedMonth(newDate);
+  };
+
+  const goToNextMonth = () => {
+    const newDate = new Date(selectedMonth);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setSelectedMonth(newDate);
   };
 
   const handleSubmit = (e) => {
@@ -94,8 +106,20 @@ export default function Budgets() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Budgets" subtitle={now.toLocaleString('default', { month: 'long', year: 'numeric' })}>
-        <Dialog open={showForm} onOpenChange={setShowForm}>
+      <PageHeader title="Budgets" subtitle="Track your spending by category">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5">
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={goToPrevMonth}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-medium text-gray-900 min-w-[120px] text-center">
+              {selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
+            </span>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={goToNextMonth}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-2" onClick={() => setEditing(null)}>
               <Plus className="h-4 w-4" /> Add Budget
@@ -136,6 +160,7 @@ export default function Budgets() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </PageHeader>
 
       {budgets.length === 0 ? (
