@@ -10,10 +10,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Users, Tag, Settings as SettingsIcon, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Users, Tag, Settings as SettingsIcon, Pencil, Trash2, RefreshCw, DollarSign } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Settings() {
   const queryClient = useQueryClient();
+  const [updatingRates, setUpdatingRates] = useState(false);
+
+  const handleUpdateExchangeRates = async () => {
+    setUpdatingRates(true);
+    try {
+      const { data } = await base44.functions.invoke('updateAllExchangeRates', {});
+      toast.success(`Updated ${data.updated} exchange rates`);
+      queryClient.invalidateQueries({ queryKey: ['fxrates'] });
+    } catch (error) {
+      toast.error('Failed to update rates: ' + error.message);
+    } finally {
+      setUpdatingRates(false);
+    }
+  };
 
   // Persons
   const { data: persons = [] } = useQuery({ queryKey: ['persons'], queryFn: () => base44.entities.Person.list() });
@@ -83,6 +98,7 @@ export default function Settings() {
         <TabsList>
           <TabsTrigger value="persons" className="gap-2"><Users className="h-4 w-4" /> People</TabsTrigger>
           <TabsTrigger value="categories" className="gap-2"><Tag className="h-4 w-4" /> Categories</TabsTrigger>
+          <TabsTrigger value="currency" className="gap-2"><DollarSign className="h-4 w-4" /> Currency</TabsTrigger>
         </TabsList>
 
         <TabsContent value="persons">
@@ -206,6 +222,32 @@ export default function Settings() {
               {categories.length === 0 && (
                 <p className="text-sm text-gray-400 text-center py-6">No categories added yet</p>
               )}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="currency">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900">Exchange Rates</p>
+                <p className="text-xs text-gray-500 mt-1">Update real-time currency exchange rates</p>
+              </div>
+              <Button 
+                size="sm" 
+                className="gap-2" 
+                onClick={handleUpdateExchangeRates}
+                disabled={updatingRates}
+              >
+                <RefreshCw className={`h-4 w-4 ${updatingRates ? 'animate-spin' : ''}`} />
+                {updatingRates ? 'Updating...' : 'Update Rates'}
+              </Button>
+            </div>
+            <div className="rounded-xl border border-gray-100 bg-white p-6">
+              <p className="text-sm text-gray-600">
+                Click "Update Rates" to fetch the latest exchange rates for USD/ILS, EUR/USD, GBP/USD and other currency pairs. 
+                This will update all transactions, net worth calculations, and investment values with current rates.
+              </p>
             </div>
           </div>
         </TabsContent>
