@@ -335,25 +335,20 @@ export default function Budgets() {
                 </div>
                 <div>
                   <Label>Section</Label>
-                  <Select name="section" defaultValue={editing?.section || 'expenses'}>
-                    <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="income">Income</SelectItem>
-                      <SelectItem value="expenses">Expenses</SelectItem>
-                      <SelectItem value="bills">Bills</SelectItem>
-                      <SelectItem value="subscriptions">Subscriptions</SelectItem>
-                      <SelectItem value="savings">Savings</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <select name="section" defaultValue={editing?.section || 'expenses'} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                    <option value="income">Income</option>
+                    <option value="expenses">Expenses</option>
+                    <option value="bills">Bills</option>
+                    <option value="subscriptions">Subscriptions</option>
+                    <option value="savings">Savings</option>
+                  </select>
                 </div>
                 <div>
                   <Label>Category (for transaction matching)</Label>
-                  <Select name="category_id" defaultValue={editing?.category_id || ''}>
-                    <SelectTrigger><SelectValue placeholder="Select category (optional)" /></SelectTrigger>
-                    <SelectContent>
-                      {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <select name="category_id" defaultValue={editing?.category_id || ''} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                    <option value="">Select category (optional)</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
                 </div>
                 <div>
                   <Label>Monthly Budget Amount</Label>
@@ -361,13 +356,10 @@ export default function Budgets() {
                 </div>
                 <div>
                   <Label>Period</Label>
-                  <Select name="period" defaultValue={editing?.period || 'monthly'}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="annual">Annual</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <select name="period" defaultValue={editing?.period || 'monthly'} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                    <option value="monthly">Monthly</option>
+                    <option value="annual">Annual</option>
+                  </select>
                 </div>
                 <div className="flex justify-end gap-3">
                   <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
