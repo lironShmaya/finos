@@ -53,7 +53,11 @@ export default function Budgets() {
         if (b.category_id) {
           const cat = allCategories.find(c => c.id === b.category_id);
           if (cat && cat.section && b.section !== cat.section) {
-            await base44.entities.Budget.update(b.id, { section: cat.section });
+            await base44.entities.Budget.update(b.id, { 
+              section: cat.section,
+              item_name: b.item_name,
+              amount: b.amount 
+            });
           }
         }
       }
