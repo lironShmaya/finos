@@ -22,7 +22,6 @@ const navItems = [
   { name: 'Annual', icon: BarChart3, page: 'AnnualDashboard' },
   { name: 'Transactions', icon: ArrowRightLeft, page: 'Transactions' },
   { name: 'Budgets', icon: PieChart, page: 'Budgets' },
-  { name: 'Bills', icon: Receipt, page: 'Bills' },
   { name: 'Net Worth', icon: TrendingUp, page: 'NetWorth' },
   { name: 'Investments', icon: BarChart3, page: 'Investments' },
   { name: 'Pensions', icon: Landmark, page: 'Pensions' },
