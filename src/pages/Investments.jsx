@@ -154,6 +154,7 @@ export default function Investments() {
 
       // Find existing holding
       const existingHolding = holdings.find(h => h.symbol === orderData.symbol);
+      let holdingId = existingHolding?.id;
 
       if (orderData.order_type === 'buy') {
         if (existingHolding) {
@@ -172,7 +173,7 @@ export default function Investments() {
           });
         } else {
           // Create new holding
-          await base44.entities.Holding.create({
+          const newHolding = await base44.entities.Holding.create({
             symbol: orderData.symbol,
             name: orderData.company_name || orderData.symbol,
             asset_class: orderData.asset_class,
@@ -184,7 +185,18 @@ export default function Investments() {
             unrealized_pl: 0,
             unrealized_pl_pct: 0,
           });
+          holdingId = newHolding.id;
         }
+        
+        // Update current price from market
+        if (holdingId && orderData.asset_class !== 'cash') {
+          try {
+            await base44.functions.invoke('updateStockPrice', { holding_id: holdingId });
+          } catch (e) {
+            console.log('Could not fetch current price:', e.message);
+          }
+        }
+        
         toast.success(`Bought ${orderData.quantity} shares of ${orderData.symbol}`);
       } else if (orderData.order_type === 'sell') {
         if (!existingHolding) {
