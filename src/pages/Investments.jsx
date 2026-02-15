@@ -309,7 +309,13 @@ export default function Investments() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <motion.div 
+        key={timeRange}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+      >
         <StatCard 
           title="Total Portfolio Value" 
           value={formatCurrency(totalValue, displayCurrency)} 
@@ -366,7 +372,7 @@ export default function Investments() {
           }
           icon={TrendingDown} 
         />
-      </div>
+      </motion.div>
 
       <div className="flex gap-3 max-w-3xl">
         <StatCard 

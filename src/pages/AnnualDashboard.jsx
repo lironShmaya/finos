@@ -160,62 +160,62 @@ export default function AnnualDashboard() {
       </div>
 
       {/* Income Summary */}
-      <div className="rounded-2xl border-2 border-emerald-500 bg-gradient-to-br from-emerald-950 to-gray-900 p-6">
-        <h2 className="text-2xl font-bold text-emerald-400 mb-6 text-center">INCOME SUMMARY</h2>
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">INCOME SUMMARY</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-emerald-500/30">
-            <p className="text-xs text-emerald-400 uppercase mb-2">Total Income This Year</p>
-            <p className="text-2xl font-bold text-emerald-400">{formatCurrency(totalIncome, 'USD')}</p>
+          <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+            <p className="text-xs text-emerald-700 uppercase mb-2 font-semibold">Total Income This Year</p>
+            <p className="text-2xl font-bold text-emerald-600">{formatCurrency(totalIncome, 'USD')}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-emerald-500/30">
-            <p className="text-xs text-emerald-400 uppercase mb-2">Average Monthly Income</p>
-            <p className="text-2xl font-bold text-emerald-400">{formatCurrency(avgMonthlyIncome, 'USD')}</p>
+          <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+            <p className="text-xs text-emerald-700 uppercase mb-2 font-semibold">Average Monthly Income</p>
+            <p className="text-2xl font-bold text-emerald-600">{formatCurrency(avgMonthlyIncome, 'USD')}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-emerald-500/30">
-            <p className="text-xs text-emerald-400 uppercase mb-2">Highest Income Month</p>
-            <p className="text-2xl font-bold text-emerald-400">{maxIncomeMonth.month}</p>
+          <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+            <p className="text-xs text-emerald-700 uppercase mb-2 font-semibold">Highest Income Month</p>
+            <p className="text-2xl font-bold text-emerald-600">{maxIncomeMonth.month}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-emerald-500/30">
-            <p className="text-xs text-emerald-400 uppercase mb-2">Lowest Income Month</p>
-            <p className="text-2xl font-bold text-emerald-400">{minIncomeMonth.month !== 'N/A' ? minIncomeMonth.month : 'N/A'}</p>
+          <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+            <p className="text-xs text-emerald-700 uppercase mb-2 font-semibold">Lowest Income Month</p>
+            <p className="text-2xl font-bold text-emerald-600">{minIncomeMonth.month !== 'N/A' ? minIncomeMonth.month : 'N/A'}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-800/30 rounded-xl p-4 border border-emerald-500/30">
-            <h3 className="text-sm font-semibold text-emerald-400 mb-4 text-center">MONTHLY INCOME TOTAL</h3>
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 text-center">MONTHLY INCOME TOTAL</h3>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={monthlyChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="month" stroke="#10B981" fontSize={12} />
-                <YAxis stroke="#10B981" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #10B981' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="month" stroke="#6B7280" fontSize={12} />
+                <YAxis stroke="#6B7280" fontSize={12} />
+                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }} />
                 <Bar dataKey="income" fill="#10B981" />
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="bg-gray-800/30 rounded-xl p-4 border border-emerald-500/30">
-            <h3 className="text-sm font-semibold text-emerald-400 mb-4 text-center">INCOME BREAKDOWN</h3>
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 text-center">INCOME BREAKDOWN</h3>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie data={incomePieData} dataKey="value" cx="50%" cy="50%" innerRadius={60} outerRadius={90}>
                   {incomePieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #10B981' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-gray-800/30 rounded-xl p-4 border border-emerald-500/30">
-          <h3 className="text-sm font-semibold text-emerald-400 mb-4 text-center">INCOME vs EXPENSE</h3>
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 text-center">INCOME vs EXPENSE</h3>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={monthlyChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="month" stroke="#10B981" fontSize={12} />
-              <YAxis stroke="#10B981" fontSize={12} />
-              <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #10B981' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis dataKey="month" stroke="#6B7280" fontSize={12} />
+              <YAxis stroke="#6B7280" fontSize={12} />
+              <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }} />
               <Legend />
               <Line type="monotone" dataKey="income" stroke="#10B981" strokeWidth={2} name="Income" />
               <Line type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={2} name="Expense" />
@@ -225,49 +225,49 @@ export default function AnnualDashboard() {
       </div>
 
       {/* Expense Summary */}
-      <div className="rounded-2xl border-2 border-pink-500 bg-gradient-to-br from-pink-950 to-gray-900 p-6">
-        <h2 className="text-2xl font-bold text-pink-400 mb-6 text-center">EXPENSE SUMMARY</h2>
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">EXPENSE SUMMARY</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-pink-500/30">
-            <p className="text-xs text-pink-400 uppercase mb-2">Total Expenses This Year</p>
-            <p className="text-2xl font-bold text-pink-400">{formatCurrency(totalExpenses, 'USD')}</p>
+          <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+            <p className="text-xs text-red-700 uppercase mb-2 font-semibold">Total Expenses This Year</p>
+            <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses, 'USD')}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-pink-500/30">
-            <p className="text-xs text-pink-400 uppercase mb-2">Average Monthly Expense</p>
-            <p className="text-2xl font-bold text-pink-400">{formatCurrency(avgMonthlyExpense, 'USD')}</p>
+          <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+            <p className="text-xs text-red-700 uppercase mb-2 font-semibold">Average Monthly Expense</p>
+            <p className="text-2xl font-bold text-red-600">{formatCurrency(avgMonthlyExpense, 'USD')}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-pink-500/30">
-            <p className="text-xs text-pink-400 uppercase mb-2">Highest Expense Month</p>
-            <p className="text-2xl font-bold text-pink-400">{maxExpenseMonth.month}</p>
+          <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+            <p className="text-xs text-red-700 uppercase mb-2 font-semibold">Highest Expense Month</p>
+            <p className="text-2xl font-bold text-red-600">{maxExpenseMonth.month}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-pink-500/30">
-            <p className="text-xs text-pink-400 uppercase mb-2">Lowest Expense Month</p>
-            <p className="text-2xl font-bold text-pink-400">{minExpenseMonth.month !== 'N/A' ? minExpenseMonth.month : 'N/A'}</p>
+          <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+            <p className="text-xs text-red-700 uppercase mb-2 font-semibold">Lowest Expense Month</p>
+            <p className="text-2xl font-bold text-red-600">{minExpenseMonth.month !== 'N/A' ? minExpenseMonth.month : 'N/A'}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-gray-800/30 rounded-xl p-4 border border-pink-500/30">
-            <h3 className="text-sm font-semibold text-pink-400 mb-4 text-center">MONTHLY EXPENSE TOTAL</h3>
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 text-center">MONTHLY EXPENSE TOTAL</h3>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={monthlyChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="month" stroke="#EC4899" fontSize={12} />
-                <YAxis stroke="#EC4899" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #EC4899' }} />
-                <Bar dataKey="expense" fill="#EC4899" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="month" stroke="#6B7280" fontSize={12} />
+                <YAxis stroke="#6B7280" fontSize={12} />
+                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }} />
+                <Bar dataKey="expense" fill="#EF4444" />
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="bg-gray-800/30 rounded-xl p-4 border border-pink-500/30">
-            <h3 className="text-sm font-semibold text-pink-400 mb-4 text-center">EXPENSE BREAKDOWN</h3>
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 text-center">EXPENSE BREAKDOWN</h3>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie data={expensePieData} dataKey="value" cx="50%" cy="50%" innerRadius={60} outerRadius={90}>
                   {expensePieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #EC4899' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -275,58 +275,58 @@ export default function AnnualDashboard() {
       </div>
 
       {/* Investment Summary */}
-      <div className="rounded-2xl border-2 border-blue-500 bg-gradient-to-br from-blue-950 to-gray-900 p-6">
-        <h2 className="text-2xl font-bold text-blue-400 mb-6 text-center">INVESTMENT SUMMARY</h2>
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">INVESTMENT SUMMARY</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-blue-500/30">
-            <p className="text-xs text-blue-400 uppercase mb-2">Total Invested This Year</p>
-            <p className="text-2xl font-bold text-blue-400">{formatCurrency(totalInvested, 'USD')}</p>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <p className="text-xs text-blue-700 uppercase mb-2 font-semibold">Total Invested This Year</p>
+            <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalInvested, 'USD')}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-blue-500/30">
-            <p className="text-xs text-blue-400 uppercase mb-2">Total Divested This Year</p>
-            <p className="text-2xl font-bold text-blue-400">{formatCurrency(totalDivested, 'USD')}</p>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <p className="text-xs text-blue-700 uppercase mb-2 font-semibold">Total Divested This Year</p>
+            <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalDivested, 'USD')}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-blue-500/30">
-            <p className="text-xs text-blue-400 uppercase mb-2">Current Portfolio Value</p>
-            <p className="text-2xl font-bold text-blue-400">{formatCurrency(totalPortfolioValue, 'USD')}</p>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <p className="text-xs text-blue-700 uppercase mb-2 font-semibold">Current Portfolio Value</p>
+            <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalPortfolioValue, 'USD')}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4 border border-blue-500/30">
-            <p className="text-xs text-blue-400 uppercase mb-2">Total Portfolio P/L</p>
-            <p className={`text-2xl font-bold ${totalPortfolioPL >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <p className="text-xs text-blue-700 uppercase mb-2 font-semibold">Total Portfolio P/L</p>
+            <p className={`text-2xl font-bold ${totalPortfolioPL >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               {totalPortfolioPL >= 0 ? '+' : ''}{formatCurrency(totalPortfolioPL, 'USD')}
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-gray-800/30 rounded-xl p-4 border border-blue-500/30">
-            <h3 className="text-sm font-semibold text-blue-400 mb-4 text-center">YEARLY ORDERS</h3>
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 text-center">YEARLY ORDERS</h3>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={[
                 { type: 'Invested', value: totalInvested },
                 { type: 'Divested', value: totalDivested }
               ]}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="type" stroke="#3B82F6" fontSize={12} />
-                <YAxis stroke="#3B82F6" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #3B82F6' }} />
-                <Bar dataKey="value" fill="#3B82F6" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="type" stroke="#6B7280" fontSize={12} />
+                <YAxis stroke="#6B7280" fontSize={12} />
+                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }} />
+                <Bar dataKey="value" fill="#2563EB" />
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="bg-gray-800/30 rounded-xl p-4 border border-blue-500/30">
-            <h3 className="text-sm font-semibold text-blue-400 mb-4 text-center">PORTFOLIO PERFORMANCE</h3>
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 text-center">PORTFOLIO PERFORMANCE</h3>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={[
                 { metric: 'Cost', value: totalPortfolioCost },
                 { metric: 'Value', value: totalPortfolioValue }
               ]}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="metric" stroke="#3B82F6" fontSize={12} />
-                <YAxis stroke="#3B82F6" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #3B82F6' }} />
-                <Bar dataKey="value" fill="#3B82F6" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="metric" stroke="#6B7280" fontSize={12} />
+                <YAxis stroke="#6B7280" fontSize={12} />
+                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }} />
+                <Bar dataKey="value" fill="#2563EB" />
               </BarChart>
             </ResponsiveContainer>
           </div>
