@@ -75,7 +75,7 @@ export default function Settings() {
   const handleCatSubmit = (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const data = { name: fd.get('name'), type: fd.get('type'), color: fd.get('color') || '#6B7280' };
+    const data = { name: fd.get('name'), type: fd.get('type'), section: fd.get('section'), color: fd.get('color') || '#6B7280' };
     if (editingCat) updateCatMut.mutate({ id: editingCat.id, data });
     else createCatMut.mutate(data);
   };
@@ -180,6 +180,19 @@ export default function Settings() {
                   <form onSubmit={handleCatSubmit} className="space-y-4">
                     <div><Label>Name</Label><Input name="name" defaultValue={editingCat?.name || ''} required /></div>
                     <div>
+                      <Label>Section</Label>
+                      <Select name="section" defaultValue={editingCat?.section || 'expenses'}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="income">Income</SelectItem>
+                          <SelectItem value="expenses">Expenses</SelectItem>
+                          <SelectItem value="bills">Bills</SelectItem>
+                          <SelectItem value="subscriptions">Subscriptions</SelectItem>
+                          <SelectItem value="savings">Savings</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
                       <Label>Type</Label>
                       <Select name="type" defaultValue={editingCat?.type || 'essentials'}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -209,6 +222,7 @@ export default function Settings() {
                   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: c.color || '#6B7280' }} />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">{c.name}</p>
+                    <p className="text-xs text-gray-400">{c.section || 'expenses'}</p>
                   </div>
                   <Badge variant="outline" className={`text-xs ${typeColors[c.type] || ''}`}>{c.type}</Badge>
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingCat(c); setShowCatForm(true); }}>
