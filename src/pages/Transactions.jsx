@@ -9,7 +9,7 @@ import EmptyState from '../components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Upload, Search, ArrowRightLeft } from 'lucide-react';
+import { Plus, Upload, Search, ArrowRightLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Transactions() {
@@ -18,6 +18,7 @@ export default function Transactions() {
   const [editingTx, setEditingTx] = useState(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
 
   const queryClient = useQueryClient();
 
@@ -65,25 +66,52 @@ export default function Transactions() {
   };
 
   const filtered = transactions.filter(t => {
+    const txDate = new Date(t.date);
+    const matchesMonth = txDate.getMonth() === selectedMonth.getMonth() && txDate.getFullYear() === selectedMonth.getFullYear();
     const matchesSearch = !search || 
       (t.merchant || '').toLowerCase().includes(search.toLowerCase()) ||
       (t.description || '').toLowerCase().includes(search.toLowerCase()) ||
       (t.category_name || '').toLowerCase().includes(search.toLowerCase());
     const matchesType = typeFilter === 'all' || t.type === typeFilter;
-    return matchesSearch && matchesType;
+    return matchesMonth && matchesSearch && matchesType;
   });
+
+  const goToPrevMonth = () => {
+    const newDate = new Date(selectedMonth);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setSelectedMonth(newDate);
+  };
+
+  const goToNextMonth = () => {
+    const newDate = new Date(selectedMonth);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setSelectedMonth(newDate);
+  };
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Transactions" subtitle={`${transactions.length} total`}>
-        <Button variant="outline" size="sm" className="gap-2" onClick={() => { setShowImport(true); setShowForm(false); }}>
-          <Upload className="h-4 w-4" />
-          Import
-        </Button>
-        <Button size="sm" className="gap-2" onClick={() => { setShowForm(true); setShowImport(false); setEditingTx(null); }}>
-          <Plus className="h-4 w-4" />
-          Add
-        </Button>
+      <PageHeader title="Transactions" subtitle={`${filtered.length} this month`}>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5">
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={goToPrevMonth}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-medium text-gray-900 min-w-[120px] text-center">
+              {selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
+            </span>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={goToNextMonth}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => { setShowImport(true); setShowForm(false); }}>
+            <Upload className="h-4 w-4" />
+            Import
+          </Button>
+          <Button size="sm" className="gap-2" onClick={() => { setShowForm(true); setShowImport(false); setEditingTx(null); }}>
+            <Plus className="h-4 w-4" />
+            Add
+          </Button>
+        </div>
       </PageHeader>
 
       <AnimatePresence>
