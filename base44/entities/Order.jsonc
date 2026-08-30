@@ -1,0 +1,66 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Order date"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "Ticker symbol"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "order_type": {
+      "type": "string",
+      "enum": [
+        "buy",
+        "sell"
+      ],
+      "description": "Buy or Sell"
+    },
+    "price": {
+      "type": "number",
+      "description": "Price per share"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Number of shares"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "USD",
+        "ILS",
+        "EUR",
+        "GBP"
+      ],
+      "default": "USD"
+    },
+    "asset_class": {
+      "type": "string",
+      "enum": [
+        "stocks",
+        "bonds",
+        "etf",
+        "mutual_fund",
+        "crypto",
+        "commodities",
+        "cash",
+        "other"
+      ],
+      "default": "stocks"
+    }
+  },
+  "required": [
+    "date",
+    "symbol",
+    "order_type",
+    "price",
+    "quantity"
+  ]
+}

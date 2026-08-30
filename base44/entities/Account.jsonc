@@ -1,0 +1,68 @@
+{
+  "name": "Account",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Account name"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "checking",
+        "savings",
+        "credit_card",
+        "cash",
+        "brokerage",
+        "pension",
+        "loan",
+        "mortgage",
+        "real_estate",
+        "other"
+      ],
+      "description": "Account type"
+    },
+    "institution": {
+      "type": "string",
+      "description": "Bank or institution name"
+    },
+    "owner_person_id": {
+      "type": "string",
+      "description": "Person ID who owns this account"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "USD",
+        "ILS",
+        "EUR",
+        "GBP"
+      ],
+      "default": "USD",
+      "description": "Account currency"
+    },
+    "current_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Current balance"
+    },
+    "is_asset": {
+      "type": "boolean",
+      "default": true,
+      "description": "True if asset, false if liability"
+    },
+    "include_in_net_worth": {
+      "type": "boolean",
+      "default": true,
+      "description": "Include in net worth calculations"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "currency"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "CategoryRule",
+  "type": "object",
+  "properties": {
+    "merchant_contains": {
+      "type": "string",
+      "description": "If merchant name contains this string"
+    },
+    "category_id": {
+      "type": "string"
+    },
+    "category_name": {
+      "type": "string"
+    },
+    "subcategory": {
+      "type": "string"
+    },
+    "person_id": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "merchant_contains",
+    "category_id"
+  ]
+}

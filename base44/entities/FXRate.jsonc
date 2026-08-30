@@ -1,0 +1,29 @@
+{
+  "name": "FXRate",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "from_currency": {
+      "type": "string"
+    },
+    "to_currency": {
+      "type": "string"
+    },
+    "rate": {
+      "type": "number"
+    },
+    "source": {
+      "type": "string",
+      "default": "manual"
+    }
+  },
+  "required": [
+    "date",
+    "from_currency",
+    "to_currency",
+    "rate"
+  ]
+}

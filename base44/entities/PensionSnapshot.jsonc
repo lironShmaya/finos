@@ -1,0 +1,63 @@
+{
+  "name": "PensionSnapshot",
+  "type": "object",
+  "properties": {
+    "pension_plan_id": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "value": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "USD",
+        "ILS",
+        "EUR",
+        "GBP"
+      ],
+      "default": "ILS"
+    },
+    "employer_contribution": {
+      "type": "number"
+    },
+    "employee_contribution": {
+      "type": "number"
+    },
+    "returns": {
+      "type": "number"
+    },
+    "fees": {
+      "type": "number"
+    },
+    "raw_data": {
+      "type": "string",
+      "description": "Raw extracted JSON as string"
+    },
+    "source_file_url": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "high"
+    },
+    "needs_review": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "pension_plan_id",
+    "date",
+    "value"
+  ]
+}

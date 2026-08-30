@@ -1,0 +1,90 @@
+{
+  "name": "PensionPlan",
+  "type": "object",
+  "properties": {
+    "person_id": {
+      "type": "string"
+    },
+    "person_name": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Pension provider name"
+    },
+    "plan_name": {
+      "type": "string"
+    },
+    "product_type": {
+      "type": "string",
+      "enum": [
+        "pension",
+        "hishtalmut",
+        "gemel",
+        "insurance",
+        "other"
+      ],
+      "description": "Product type"
+    },
+    "policy_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "frozen"
+      ],
+      "default": "active"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "USD",
+        "ILS",
+        "EUR",
+        "GBP"
+      ],
+      "default": "ILS"
+    },
+    "current_value": {
+      "type": "number"
+    },
+    "management_fee_deposits": {
+      "type": "number",
+      "description": "Fee % from deposits"
+    },
+    "management_fee_assets": {
+      "type": "number",
+      "description": "Fee % from assets"
+    },
+    "investment_track": {
+      "type": "string",
+      "description": "Investment track name"
+    },
+    "employer_contribution": {
+      "type": "number",
+      "description": "Monthly employer contribution"
+    },
+    "employee_contribution": {
+      "type": "number",
+      "description": "Monthly employee contribution"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "last_report_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "report_file_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider",
+    "plan_name",
+    "product_type"
+  ]
+}

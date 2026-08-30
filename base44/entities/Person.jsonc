@@ -1,0 +1,28 @@
+{
+  "name": "Person",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Person's name"
+    },
+    "relationship": {
+      "type": "string",
+      "enum": [
+        "self",
+        "spouse",
+        "child",
+        "other"
+      ],
+      "description": "Relationship to primary user"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "name",
+    "relationship"
+  ]
+}

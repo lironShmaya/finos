@@ -1,0 +1,129 @@
+{
+  "name": "Transaction",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Transaction date"
+    },
+    "posted_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Posted/cleared date"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount in original currency (negative for expenses)"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "USD",
+        "ILS",
+        "EUR",
+        "GBP"
+      ],
+      "default": "USD"
+    },
+    "amount_base": {
+      "type": "number",
+      "description": "Amount in base currency"
+    },
+    "fx_rate": {
+      "type": "number",
+      "description": "FX rate used for conversion"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "expense",
+        "income",
+        "transfer"
+      ],
+      "description": "Transaction type"
+    },
+    "category_id": {
+      "type": "string",
+      "description": "Category ID"
+    },
+    "category_name": {
+      "type": "string",
+      "description": "Category name (denormalized)"
+    },
+    "subcategory": {
+      "type": "string",
+      "description": "Subcategory"
+    },
+    "merchant": {
+      "type": "string",
+      "description": "Merchant or payee name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Notes or description"
+    },
+    "account_id": {
+      "type": "string",
+      "description": "Account ID"
+    },
+    "account_name": {
+      "type": "string",
+      "description": "Account name (denormalized)"
+    },
+    "person_id": {
+      "type": "string",
+      "description": "Person ID"
+    },
+    "person_name": {
+      "type": "string",
+      "description": "Person name (denormalized)"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Freeform tags"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "excel_import",
+        "bank_csv",
+        "masleka",
+        "broker_import"
+      ],
+      "default": "manual"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "cleared",
+        "reconciled"
+      ],
+      "default": "cleared"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurrence_group_id": {
+      "type": "string"
+    },
+    "linked_transfer_id": {
+      "type": "string"
+    },
+    "receipt_url": {
+      "type": "string",
+      "description": "Receipt file URL"
+    }
+  },
+  "required": [
+    "date",
+    "amount",
+    "type"
+  ]
+}

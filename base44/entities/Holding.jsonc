@@ -1,0 +1,91 @@
+{
+  "name": "Holding",
+  "type": "object",
+  "properties": {
+    "account_id": {
+      "type": "string",
+      "description": "Broker account ID"
+    },
+    "account_name": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "Ticker symbol"
+    },
+    "name": {
+      "type": "string",
+      "description": "Security name"
+    },
+    "asset_class": {
+      "type": "string",
+      "enum": [
+        "stocks",
+        "bonds",
+        "etf",
+        "mutual_fund",
+        "crypto",
+        "commodities",
+        "real_estate",
+        "cash",
+        "other"
+      ],
+      "description": "Asset class"
+    },
+    "sector": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "avg_cost": {
+      "type": "number",
+      "description": "Average cost per unit"
+    },
+    "current_price": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "USD",
+        "ILS",
+        "EUR",
+        "GBP"
+      ],
+      "default": "USD"
+    },
+    "market_value": {
+      "type": "number",
+      "description": "Current market value"
+    },
+    "unrealized_pl": {
+      "type": "number",
+      "description": "Unrealized P&L"
+    },
+    "unrealized_pl_pct": {
+      "type": "number",
+      "description": "Unrealized P&L %"
+    },
+    "dividends_received": {
+      "type": "number",
+      "default": 0
+    },
+    "person_id": {
+      "type": "string"
+    },
+    "person_name": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "symbol",
+    "quantity",
+    "avg_cost",
+    "current_price"
+  ]
+}

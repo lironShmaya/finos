@@ -1,0 +1,86 @@
+{
+  "name": "Bill",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Bill name"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Service provider"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Bill amount"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "USD",
+        "ILS",
+        "EUR",
+        "GBP"
+      ],
+      "default": "USD"
+    },
+    "category_id": {
+      "type": "string"
+    },
+    "category_name": {
+      "type": "string"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "biweekly",
+        "monthly",
+        "quarterly",
+        "annually"
+      ],
+      "default": "monthly"
+    },
+    "due_day": {
+      "type": "number",
+      "description": "Day of month due"
+    },
+    "payment_account_id": {
+      "type": "string"
+    },
+    "person_id": {
+      "type": "string"
+    },
+    "person_name": {
+      "type": "string"
+    },
+    "is_autopay": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "last_paid_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "reminder_days": {
+      "type": "number",
+      "default": 3
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "amount",
+    "frequency"
+  ]
+}

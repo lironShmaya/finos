@@ -1,0 +1,74 @@
+{
+  "name": "Budget",
+  "type": "object",
+  "properties": {
+    "item_name": {
+      "type": "string",
+      "description": "Budget item name (e.g., Groceries, Spotify)"
+    },
+    "section": {
+      "type": "string",
+      "enum": [
+        "income",
+        "expenses",
+        "bills",
+        "subscriptions",
+        "savings"
+      ],
+      "description": "Budget section/category"
+    },
+    "category_id": {
+      "type": "string",
+      "description": "Category ID for matching transactions"
+    },
+    "category_name": {
+      "type": "string",
+      "description": "Category name (denormalized)"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Budget amount"
+    },
+    "period": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ],
+      "default": "monthly"
+    },
+    "person_scope": {
+      "type": "string",
+      "enum": [
+        "household",
+        "personal"
+      ],
+      "default": "household"
+    },
+    "person_id": {
+      "type": "string",
+      "description": "Person ID if personal scope"
+    },
+    "ordering": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order within section"
+    },
+    "rollover_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "rollover_balance": {
+      "type": "number",
+      "default": 0
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "item_name",
+    "section",
+    "amount"
+  ]
+}
